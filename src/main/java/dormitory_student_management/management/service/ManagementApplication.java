@@ -1,4 +1,4 @@
-package dormitory_student_management.management;
+package dormitory_student_management.management.service;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
