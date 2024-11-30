@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>정보 확인</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        label {
+            margin: 10px 0;
+            display: block;
+        }
+        input, button {
+            padding: 8px;
+            margin: 5px 0;
+            width: 100%;
+            font-size: 16px;
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .form-container {
+            max-width: 600px;
+            margin: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>정보 확인</h1>
+
+    <div class="form-container">
+        <form onsubmit="return searchStudent()">
+            <label for="searchId">학생 ID:</label>
+            <input type="text" id="searchId" name="searchId" placeholder="학생 ID 입력" required>
+
+            <button type="submit">검색</button>
+        </form>
+
+        <table id="studentInfo" style="display: none;">
+            <thead>
+                <tr>
+                    <th>이름</th>
+                    <th>호실</th>
+                    <th>전화번호</th>
+                    <th>입사일</th>
+                    <th>퇴사일</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td id="name">홍길동</td>
+                    <td id="room">101호</td>
+                    <td id="phone">010-1234-5678</td>
+                    <td id="checkIn">2024-01-01</td>
+                    <td id="checkOut">2024-12-31</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function searchStudent() {
+            const studentTable = document.getElementById('studentInfo');
+            studentTable.style.display = 'table';
+            return false; 
+        }
+    </script>
+
+</body>
+</html>

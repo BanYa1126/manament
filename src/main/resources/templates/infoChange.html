@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>정보 변경</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        label {
+            margin: 10px 0;
+            display: block;
+        }
+        input, button {
+            padding: 8px;
+            margin: 5px 0;
+            width: 100%;
+            font-size: 16px;
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .form-container {
+            max-width: 600px;
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>정보 변경</h1>
+
+    <div class="form-container">
+        <form onsubmit="return updateStudentInfo()">
+            <label for="studentId">학생 ID:</label>
+            <input type="text" id="studentId" name="studentId" placeholder="학생 ID 입력" onblur="fetchStudentData()" required>
+
+            <label for="newName">이름:</label>
+            <input type="text" id="newName" name="newName">
+
+            <label for="newPhone">새 전화번호:</label>
+            <input type="text" id="newPhone" name="newPhone">
+
+            <label for="newAddress">새 주소:</label>
+            <input type="text" id="newAddress" name="newAddress">
+
+            <label for="newRoom">새 호실:</label>
+            <input type="text" id="newRoom" name="newRoom">
+
+            <label for="newCheckIn">입사일:</label>
+            <input type="date" id="newCheckIn" name="newCheckIn">
+
+            <label for="newCheckOut">퇴실일:</label>
+            <input type="date" id="newCheckOut" name="newCheckOut">
+
+            <label for="newLeaveCount">외박 횟수:</label>
+            <input type="number" id="newLeaveCount" name="newLeaveCount">
+
+            <button type="submit">정보 변경</button>
+        </form>
+    </div>
+
+    <script>
+        async function fetchStudentData() {
+            const studentId = document.getElementById('studentId').value;
+
+            if (!studentId) {
+                alert("학생 ID를 입력해주세요.");
+                return;
+            }
+
+            try {
+                const response = await fetch(`/getStudentInfo?id=${studentId}`);
+                if (!response.ok) throw new Error('데이터를 불러오는 데 실패했습니다.');
+
+                const data = await response.json();
+
+                document.getElementById('newName').value = data.name || "";
+                document.getElementById('newPhone').value = data.phone || "";
+                document.getElementById('newAddress').value = data.address || "";
+                document.getElementById('newRoom').value = data.room || "";
+                document.getElementById('newCheckIn').value = data.checkIn || "";
+                document.getElementById('newCheckOut').value = data.checkOut || "";
+                document.getElementById('newLeaveCount').value = data.leaveCount || "";
+            } catch (error) {
+                alert("학생 정보를 가져오는 데 실패했습니다.");
+                console.error(error);
+            }
+        }
+
+        async function updateStudentInfo() {
+            const studentId = document.getElementById('studentId').value;
+            const newName = document.getElementById('newName').value;
+            const newPhone = document.getElementById('newPhone').value;
+            const newAddress = document.getElementById('newAddress').value;
+            const newRoom = document.getElementById('newRoom').value;
+            const newCheckIn = document.getElementById('newCheckIn').value;
+            const newCheckOut = document.getElementById('newCheckOut').value;
+            const newLeaveCount = document.getElementById('newLeaveCount').value;
+
+            if (!studentId) {
+                alert("학생 ID를 입력해주세요.");
+                return false;
+            }
+
+            try {
+                const response = await fetch('/updateStudentInfo', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        studentId,
+                        name: newName,
+                        phone: newPhone,
+                        address: newAddress,
+                        room: newRoom,
+                        checkIn: newCheckIn,
+                        checkOut: newCheckOut,
+                        leaveCount: newLeaveCount
+                    })
+                });
+
+                if (!response.ok) throw new Error('정보 변경에 실패했습니다.');
+
+                alert("정보가 성공적으로 변경되었습니다.");
+                return false; 
+            } catch (error) {
+                alert("정보 변경 중 오류가 발생했습니다.");
+                console.error(error);
+                return false;
+            }
+        }
+    </script>
+
+</body>
+</html>
