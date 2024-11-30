@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>상벌점 관리</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        label {
+            margin: 10px 0;
+            display: block;
+        }
+        input, button, select, textarea {
+            padding: 8px;
+            margin: 5px 0;
+            width: 100%;
+            font-size: 16px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .form-container {
+            max-width: 600px;
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>상벌점 관리</h1>
+
+    <div class="form-container">
+        <form action="/points" method="POST">
+            <label for="studentId">학생 ID:</label>
+            <input type="text" id="studentId" name="studentId" placeholder="학생 ID 입력" required>
+
+            <label for="pointType">상벌점 유형:</label>
+            <select id="pointType" name="pointType" required>
+                <option value="">선택하세요</option>
+                <option value="reward">상점</option>
+                <option value="penalty">벌점</option>
+            </select>
+
+            <label for="points">점수:</label>
+            <input type="number" id="points" name="points" placeholder="점수 입력 (예: 10)" required>
+
+            <label for="reason">사유:</label>
+            <textarea id="reason" name="reason" rows="4" placeholder="상/벌점 사유 입력"></textarea>
+
+            <button type="submit">등록</button>
+        </form>
+    </div>
+
+</body>
+</html>
