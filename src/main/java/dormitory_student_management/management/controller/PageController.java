@@ -6,12 +6,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class PageController {
 
-    // Start 페이지 (Static 폴더에서 정적 파일)
-    @GetMapping("/start")
-    public String showStartPage() {
-        return "start"; // static/start.html
-    }
-
     // Student Admission 페이지
     @GetMapping("/student-admission")
     public String showStudentAdmissionPage() {

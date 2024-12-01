@@ -1,5 +1,6 @@
 package dormitory_student_management.management;
 
+import dormitory_student_management.management.service.DormitoryProcedureCaller;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -11,14 +12,7 @@ import javax.sql.DataSource;
 public class SpringConfig {
 
     @Bean
-    public DataSource dataSource() {
-        DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        return dataSource;
-    }
-
-    @Bean
-    public JdbcTemplate jdbcTemplate(DataSource dataSource) {
-        return new JdbcTemplate(dataSource);
+    public DormitoryProcedureCaller dormitoryProcedureCaller(JdbcTemplate jdbcTemplate) {
+        return new DormitoryProcedureCaller(jdbcTemplate);
     }
 }
-
