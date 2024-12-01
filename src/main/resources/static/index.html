@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>메인 페이지</title>
+    <title>기숙사 현황</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -73,81 +73,95 @@
     </style>
 </head>
 <body>
-    <h1 id="currentDateTime">오늘 날짜와 시간</h1>
+<div style="text-align: center; margin-bottom: 20px;">
+    <h1>현재 날짜와 시간</h1>
+    <h2 id="currentDateTime"></h2>
+</div>
 
-    <div class="container">
+<div class="container">
 
-        <div class="sidebar">
-            <div>총원: <span id="totalCount">0</span></div>
-            <button onclick="openWindow('/student-admission')">학생 입사</button>
-            <button onclick="openWindow('/info-change')">정보 변경</button>
-            <button onclick="openWindow('/reward-punishment')">상벌점</button>
-            <button onclick="openWindow('/view-student')">학생 확인</button>
-        </div>
-
-        <div class="content">
-            <h2>학생들 표</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>학생 ID</th>
-                        <th>이름</th>
-                        <th>호실</th>
-                        <th>전화번호</th>
-                    </tr>
-                </thead>
-                <tbody id="studentTableBody">
-                
-                </tbody>
-            </table>
-        </div>
+    <div class="sidebar">
+        <div>총원: <span id="totalCount">0</span></div>
+        <button onclick="location.href='/student-admission'">학생 입사</button>
+        <button onclick="location.href='/info-change'">학생 정보 변경</button>
+        <button onclick="location.href='/reward-punishment'">상벌점</button>
+        <button onclick="location.href='/view-student'">학생 정보 조회</button>
     </div>
 
-    <div class="footer">
-        <button onclick="openWindow('관리자.html')">관리자 이전</button>
+    <div class="content">
+        <h2>기숙사 현황</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>방 번호</th>
+                <th>수용 가능 인원</th>
+                <th>현재 배정 인원</th>
+                <th>학생 학번</th>
+            </tr>
+            </thead>
+            <tbody id="dormitoryTableBody">
+            <!-- JavaScript가 데이터를 추가합니다 -->
+            </tbody>
+        </table>
     </div>
+</div>
 
-    <script>
-        
-        const students = [
-            { id: 'S001', name: '홍길동', room: '101', phone: '010-1234-5678' },
-            { id: 'S002', name: '김철수', room: '102', phone: '010-8765-4321' },
-            { id: 'S003', name: '이영희', room: '103', phone: '010-5678-1234' },
-        ];
+<div class="footer">
+    <button onclick="location.href='/admin'">관리자 이전</button>
+</div>
 
-        function loadStudents() {
-            const tableBody = document.getElementById('studentTableBody');
-            tableBody.innerHTML = ''; 
-            students.forEach(student => {
+<script>
+    function updateDateTime() {
+        const now = new Date();
+        const formattedDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        const formattedTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+        document.getElementById('currentDateTime').innerText = `${formattedDate} ${formattedTime}`;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
+    });
+    async function fetchDormitoryData() {
+        try {
+            const response = await fetch('/api/dormitories');
+            const data = await response.json();
+
+            const tableBody = document.getElementById('dormitoryTableBody');
+            tableBody.innerHTML = ''; // 기존 내용을 비우기
+
+            const dormitories = data.dormitories;
+            const studentAssignments = data.studentAssignments;
+
+            dormitories.forEach(dormitory => {
                 const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${student.id}</td>
-                    <td>${student.name}</td>
-                    <td>${student.room}</td>
-                    <td>${student.phone}</td>
-                `;
+
+                const roomCell = document.createElement('td');
+                roomCell.textContent = dormitory.roomNumber;
+                row.appendChild(roomCell);
+
+                const capacityCell = document.createElement('td');
+                capacityCell.textContent = dormitory.capacity;
+                row.appendChild(capacityCell);
+
+                const occupantsCell = document.createElement('td');
+                occupantsCell.textContent = dormitory.currentOccupants;
+                row.appendChild(occupantsCell);
+
+                const studentsCell = document.createElement('td');
+                const studentIds = studentAssignments[dormitory.roomNumber] || [];
+                studentsCell.innerHTML = studentIds.map(id => `<div>${id}</div>`).join('');
+                row.appendChild(studentsCell);
+
                 tableBody.appendChild(row);
             });
-
-            document.getElementById('totalCount').innerText = students.length;
+        } catch (error) {
+            console.error('Error fetching dormitory data:', error);
         }
+    }
 
-        function updateDateTime() {
-            const now = new Date();
-            const formattedDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-            const formattedTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
-            document.getElementById('currentDateTime').innerText = `${formattedDate} ${formattedTime}`;
-        }
-
-        function openWindow(url) {
-            window.open(url, '_blank', 'width=600,height=400');
-        }
-
-        window.onload = () => {
-            loadStudents(); 
-            updateDateTime(); 
-            setInterval(updateDateTime, 1000); 
-        };
-    </script>
+    // 페이지 로드 시 데이터 가져오기
+    document.addEventListener('DOMContentLoaded', fetchDormitoryData);
+</script>
 </body>
 </html>
