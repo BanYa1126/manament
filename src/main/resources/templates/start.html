@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>기숙사 현황</title>
+    <style>
+        .table-container {
+            overflow-y: auto;
+            max-height: 680px;
+            border: 1px solid #ddd;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .container {
+            display: flex;
+            flex-direction: row;
+        }
+        .sidebar {
+            width: 200px;
+            margin-right: 20px;
+        }
+        .sidebar button {
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .sidebar button:hover {
+            background-color: #0056b3;
+        }
+        .content {
+            flex: 1;
+        }
+        .content h2 {
+            text-align: center;
+        }
+        .content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .content table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .footer {
+            margin-top: 20px;
+            text-align: right;
+        }
+        .footer button {
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .footer button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<div style="text-align: center; margin-bottom: 20px;">
+    <h1>기숙사 현황</h1>
+    <h2 id="currentDateTime"></h2>
+</div>
+
+<div class="container">
+
+    <div class="sidebar">
+        <div>기숙사 총원: <span th:text="${totalAssignedPeople}">0</span></div>
+        <button onclick="location.href='/student-admission'">학생 입사</button>
+        <button onclick="location.href='/info-change'">학생 정보 변경</button>
+        <button onclick="location.href='/reward-punishment'">상벌점</button>
+        <button onclick="location.href='/view-student'">학생 정보 조회</button>
+    </div>
+    <div class="content">
+        <h2>기숙사 방 현황</h2>
+        <div class="table-container">
+            <table>
+                <thead>
+                <tr>
+                    <th>방 번호</th>
+                    <th>현재 배정 인원</th>
+                    <th>배정 학생 학번</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="dormitory : ${dormitories}">
+                    <td th:text="${dormitory.roomNumber}"></td>
+                    <td th:text="${dormitory.assignedPeople}"></td>
+                    <td>
+                        <span th:each="student, iterStat : ${studentsByRoom[dormitory.roomNumber]}"
+                              th:text="${student.studentId} + (iterStat.last ? '' : ', ')"></span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="footer">
+        <button onclick="location.href='/admin'">관리자 이전</button>
+    </div>
+</div>
+
+<script>
+    function updateDateTime() {
+        const now = new Date();
+        const formattedDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        const formattedTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+        document.getElementById('currentDateTime').innerText = `${formattedDate} ${formattedTime}`;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
+    });
+</script>
+
+</body>
+</html>

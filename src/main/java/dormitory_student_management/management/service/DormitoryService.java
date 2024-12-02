@@ -1,36 +1,23 @@
 package dormitory_student_management.management.service;
 
 import dormitory_student_management.management.domain.Dormitory;
-import dormitory_student_management.management.domain.Student;
-import dormitory_student_management.management.repository.DormitoryRepository;
-import dormitory_student_management.management.repository.StudentRepository;
+import dormitory_student_management.management.repository.Dormitory.DormitoryRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 public class DormitoryService {
 
     private final DormitoryRepository dormitoryRepository;
-    private final StudentRepository studentRepository;
 
-    public DormitoryService(DormitoryRepository dormitoryRepository, StudentRepository studentRepository) {
+    @Autowired
+    public DormitoryService(DormitoryRepository dormitoryRepository) {
         this.dormitoryRepository = dormitoryRepository;
-        this.studentRepository = studentRepository;
     }
 
     public List<Dormitory> getAllDormitories() {
         return dormitoryRepository.findAll();
-    }
-
-    public Map<Integer, List<Integer>> getStudentAssignments() {
-        return studentRepository.findAll().stream()
-                .filter(student -> student.getDormitory() != null)
-                .collect(Collectors.groupingBy(
-                        student -> student.getDormitory().getRoomNumber(),
-                        Collectors.mapping(Student::getStudentId, Collectors.toList())
-                ));
     }
 }

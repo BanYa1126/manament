@@ -3,17 +3,18 @@ package dormitory_student_management.management.domain;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "상벌점")
+@Table(name="상벌점")
 public class RewardPenalty {
 
     @Id
-    @Column
+    @Column(name="학번")
     private Integer studentId;
+    @Column(name="점수")
     private Integer points;
 
     @OneToOne
     @MapsId // studentId를 Student의 기본키로 매핑
-    @JoinColumn // 외래키 설정
+    @JoinColumn(name="학번") // 외래키 설정
     private Student student;
 
     public Integer getStudentId() {

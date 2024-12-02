@@ -15,7 +15,7 @@ public class StudentService {
         this.studentRepository = studentRepository;
     }
 
-    public List<Student> getStudentsWithDormitory() {
-        return studentRepository.findStudentsWithDormitory();
+    public List<Student> getStudentsByRoomNumber(Integer roomNumber) {
+        return studentRepository.findByDormitoryRoomNumber(roomNumber);
     }
 }
