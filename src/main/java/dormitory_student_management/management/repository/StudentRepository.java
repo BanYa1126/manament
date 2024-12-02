@@ -13,4 +13,6 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
     // 방 번호가 있는 학생만 조회
     @Query("SELECT s FROM Student s WHERE s.dormitory IS NOT NULL")
     List<Student> findStudentsWithDormitory();
+
+    List<Student> findByDormitoryRoomNumber(Integer roomNumber);
 }
