@@ -13,11 +13,14 @@
             display: block;
             margin: 10px 0 5px;
         }
-        input {
+        input[type="number"], button {
             width: 100%;
             padding: 8px;
             margin-bottom: 15px;
             box-sizing: border-box;
+        }
+        .radio-group {
+            margin: 10px 0;
         }
         button {
             padding: 10px 20px;
@@ -37,8 +40,17 @@
     <label for="studentID">학생 학번</label>
     <input type="number" id="studentID" name="studentID" placeholder="학생 학번을 입력하세요" required>
 
-    <label for="departureDate">퇴사일</label>
-    <input type="date" id="departureDate" name="departureDate" required>
+    <label>기숙사 생활 기간</label>
+    <div class="radio-group">
+        <input type="radio" id="semester" name="departureOption" value="100" required>
+        <label for="semester">학기 (100일)</label><br>
+
+        <input type="radio" id="halfYear" name="departureOption" value="180">
+        <label for="halfYear">반기 (180일)</label><br>
+
+        <input type="radio" id="year" name="departureOption" value="365">
+        <label for="year">연간 (365일)</label>
+    </div>
 
     <button type="submit">기숙사 배정</button>
 </form>
@@ -48,19 +60,21 @@
         event.preventDefault();
 
         const studentId = document.getElementById('studentID').value;
-        const departureDate = document.getElementById('departureDate').value;
+        const departureOption = document.querySelector('input[name="departureOption"]:checked');
 
-        if (!departureDate) {
-            alert('퇴사일을 입력하세요.');
+        if (!departureOption) {
+            alert('기숙사 생활 기간 옵션을 선택하세요.');
             return;
         }
+
+        const days = departureOption.value;
 
         fetch(`/dormitory/assign/${studentId}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ departureDate }),
+            body: JSON.stringify({ days }),
         })
             .then(response => {
                 if (!response.ok) {
@@ -70,6 +84,8 @@
             })
             .then(message => {
                 alert(message);
+                // 성공 시 start.html로 리디렉션
+                window.location.href = '/start.html';
             })
             .catch(error => {
                 alert('오류: ' + error.message);
