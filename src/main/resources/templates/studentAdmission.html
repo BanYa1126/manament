@@ -36,6 +36,10 @@
 <form id="admissionForm">
     <label for="studentID">학생 학번</label>
     <input type="number" id="studentID" name="studentID" placeholder="학생 학번을 입력하세요" required>
+
+    <label for="departureDate">퇴사일</label>
+    <input type="date" id="departureDate" name="departureDate" required>
+
     <button type="submit">기숙사 배정</button>
 </form>
 
@@ -44,9 +48,19 @@
         event.preventDefault();
 
         const studentId = document.getElementById('studentID').value;
+        const departureDate = document.getElementById('departureDate').value;
+
+        if (!departureDate) {
+            alert('퇴사일을 입력하세요.');
+            return;
+        }
 
         fetch(`/dormitory/assign/${studentId}`, {
             method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ departureDate }),
         })
             .then(response => {
                 if (!response.ok) {
