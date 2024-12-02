@@ -4,19 +4,21 @@ import jakarta.persistence.*;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name = "출입")
+@Table(name="출입")
 public class AccessRecord {
 
     @Id
-    @Column(name = "시간")
+    @Column(name="시간")
     private Timestamp time;
+    @Column(name="상태")
     private String status;
+    @Column(name="외박여부")
     private Boolean overnightStatus;
     @ManyToOne
-    @JoinColumn
+    @JoinColumn(name="학번")
     private Student student;
     @ManyToOne
-    @JoinColumn(name = "관리자번호")
+    @JoinColumn(name="관리자번호")
     private Administrator administrator;
 
     public Timestamp getTime() {

@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
 public class PageController {
-
     // Student Admission 페이지
     @GetMapping("/student-admission")
     public String showStudentAdmissionPage() {
