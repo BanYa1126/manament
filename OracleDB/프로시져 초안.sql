@@ -18,7 +18,8 @@ BEGIN
 
     -- 2. 학생 테이블에 기숙사 방번호 업데이트
     UPDATE 학생
-    SET 방번호 = v_방번호
+    SET 방번호 = v_방번호,
+        입사일 = TRUNC(SYSDATE)
     WHERE 학번 = p_학번;
 
     -- 3. 기숙사 테이블의 배정인원 증가
@@ -38,7 +39,7 @@ EXCEPTION
 END 기숙사_입사_프로시져;
 /
 
-CREATE OR REPLACE PROCEDURE 기숙사_퇴실_프로시져 (
+create or replace NONEDITIONABLE PROCEDURE 기숙사_퇴실_프로시져 (
     p_학번 IN 학생.학번%TYPE
 )
 IS
@@ -50,9 +51,11 @@ BEGIN
     FROM 학생
     WHERE 학번 = p_학번 AND 방번호 IS NOT NULL;
 
-    -- 2. 학생 테이블에서 방번호 초기화 (기숙사에서 퇴출)
+    -- 2. 학생 테이블에서 방번호 초기화 (기숙사에서 퇴실)
     UPDATE 학생
-    SET 방번호 = NULL
+    SET 방번호 = NULL,
+        퇴사일 = NULL,
+        입사일 = NULL
     WHERE 학번 = p_학번;
 
     -- 3. 기숙사 테이블의 배정인원 감소
@@ -70,6 +73,44 @@ EXCEPTION
         -- 기타 예외 처리
         DBMS_OUTPUT.PUT_LINE('오류 발생: ' || SQLERRM);
 END 기숙사_퇴실_프로시져;
+/
+
+CREATE OR REPLACE PROCEDURE 기숙사_방이동_프로시져 (
+    p_학번 IN 학생.학번%TYPE
+)
+IS
+    v_방번호 기숙사.방번호%TYPE;
+BEGIN
+    -- 1. 학생이 배정된 방번호 조회
+    SELECT 방번호
+    INTO v_방번호
+    FROM 학생
+    WHERE 학번 = p_학번 AND 방번호 IS NOT NULL;
+
+    -- 2. 학생 테이블에서 방번호 초기화 (기숙사에서 퇴실)
+    UPDATE 학생
+    SET 방번호 = NULL
+    WHERE 학번 = p_학번;
+
+    -- 3. 기숙사 테이블의 배정인원 감소
+    UPDATE 기숙사
+    SET 배정인원 = 배정인원 - 1
+    WHERE 방번호 = v_방번호;
+
+    -- 4. 결과 메시지 출력
+    DBMS_OUTPUT.PUT_LINE('학번 ' || p_학번 || '번 학생이 기숙사 ' || v_방번호 || '번 방에서 퇴실되었습니다.');
+    
+    -- 5. 방 재 배치
+    기숙사_입사_프로시져(p_학번);
+    
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        -- 학생이 기숙사에 배정되지 않았을 때 처리
+        DBMS_OUTPUT.PUT_LINE('학번 ' || p_학번 || '번 학생은 기숙사에 배정되지 않았습니다.');
+    WHEN OTHERS THEN
+        -- 기타 예외 처리
+        DBMS_OUTPUT.PUT_LINE('오류 발생: ' || SQLERRM);
+END 기숙사_방이동_프로시져;
 /
 
 CREATE OR REPLACE NONEDITIONABLE PROCEDURE 상벌점_기록_프로시져 (
@@ -466,6 +507,8 @@ BEGIN
 
     -- 학생의 출입여부를 초기화
     :NEW.출입여부 := NULL;
+    :NEW.입사일 := NULL;
+    :NEW.퇴사일 := NULL;
 
     -- 기숙사 테이블의 배정인원 감소
     UPDATE 기숙사
@@ -473,7 +516,7 @@ BEGIN
     WHERE 방번호 = v_방번호;
 
     -- 메시지 출력
-    DBMS_OUTPUT.PUT_LINE('학번 ' || :NEW.학번 || '번 학생이 기숙사에서 퇴출되어 출입여부가 초기화되었습니다.');
+    DBMS_OUTPUT.PUT_LINE('학번 ' || :NEW.학번 || '번 학생이 기숙사에서 퇴실되어 출입여부가 초기화되었습니다.');
     DBMS_OUTPUT.PUT_LINE('방번호 ' || v_방번호 || '의 배정인원이 감소되었습니다.');
 EXCEPTION
     WHEN OTHERS THEN
@@ -509,6 +552,37 @@ BEGIN
     );
 
     DBMS_OUTPUT.PUT_LINE('당직 로테이션 작업이 생성되었습니다.');
+END;
+/
+
+
+BEGIN
+    DBMS_SCHEDULER.CREATE_JOB(
+        job_name        => '퇴실_자동_스케줄러',
+        job_type        => 'PLSQL_BLOCK',
+        job_action      => '
+            DECLARE
+                CURSOR c_퇴사학생 IS
+                    SELECT 학번
+                    FROM 학생
+                    WHERE TRUNC(퇴사일) = TRUNC(SYSDATE); -- 퇴사일이 오늘인 학생
+            BEGIN
+                -- 퇴사일이 오늘인 학생 처리
+                FOR r_학생 IN c_퇴사학생 LOOP
+                    BEGIN
+                        -- 퇴실 프로시저 호출
+                        기숙사_퇴실_프로시져(r_학생.학번);
+                    EXCEPTION
+                        WHEN OTHERS THEN
+                            DBMS_OUTPUT.PUT_LINE(''학번 '' || r_학생.학번 || '' 처리 중 오류 발생: '' || SQLERRM);
+                    END;
+                END LOOP;
+            END;
+        ',
+        start_date      => SYSTIMESTAMP,
+        repeat_interval => 'FREQ=DAILY; BYHOUR=12; BYMINUTE=0; BYSECOND=0', -- 매일 오후 12시
+        enabled         => TRUE
+    );
 END;
 /
 
