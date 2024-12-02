@@ -86,7 +86,7 @@
 <div class="container">
 
     <div class="sidebar">
-        <div>총원: <span th:text="${dormitories.size()}">0</span></div>
+        <div>기숙사 총원: <span th:text="${totalAssignedPeople}">0</span></div>
         <button onclick="location.href='/student-admission'">학생 입사</button>
         <button onclick="location.href='/info-change'">학생 정보 변경</button>
         <button onclick="location.href='/reward-punishment'">상벌점</button>
@@ -94,23 +94,31 @@
     </div>
     <div class="content">
         <h2>기숙사 방 현황</h2>
-        <div class = "table-container">
-        <table>
-            <tr>
-                <th>방 번호</th>
-                <th>현재 배정 인원</th>
-            </tr>
-            <tbody>
-            <tr th:each="dormitory : ${dormitories}">
-                <td th:text="${dormitory.roomNumber}"></td>
-                <td th:text="${dormitory.assignedPeople}"></td>
-            </tr>
-            </tbody>
-        </table>
+        <div class="table-container">
+            <table>
+                <thead>
+                <tr>
+                    <th>방 번호</th>
+                    <th>현재 배정 인원</th>
+                    <th>배정 학생 학번</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="dormitory : ${dormitories}">
+                    <td th:text="${dormitory.roomNumber}"></td>
+                    <td th:text="${dormitory.assignedPeople}"></td>
+                    <td>
+                        <span th:each="student, iterStat : ${studentsByRoom[dormitory.roomNumber]}"
+                              th:text="${student.studentId} + (iterStat.last ? '' : ', ')"></span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
-</div>
-<div class="footer">
-    <button onclick="location.href='/admin'">관리자 이전</button>
+    <div class="footer">
+        <button onclick="location.href='/admin'">관리자 이전</button>
+    </div>
 </div>
 
 <script>
