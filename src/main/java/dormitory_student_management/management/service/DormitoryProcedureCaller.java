@@ -15,8 +15,6 @@ public class DormitoryProcedureCaller {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    // 기숙사 입사 프로시저 호출 (트랜잭션 적용)
-    @Transactional
     public void assignDormitory(int studentId) {
         try {
             String procedureCall = "{CALL 기숙사_입사_프로시져(?)}";

@@ -21,25 +21,23 @@ public class DormitoryController {
     }
 
     @PostMapping("/assign/{studentId}")
-    public String assignDormitory(@PathVariable int studentId) {
+    public String assignDormitory(@PathVariable int studentId, @RequestBody Map<String, Integer> requestBody) {
         try {
-            // 학번을 기반으로 프로시저 호출
+            // 기숙사 배정 프로시저 호출
             dormitoryProcedureCaller.assignDormitory(studentId);
 
-            return "학번 " + studentId + "번 학생의 기숙사 배정이 완료되었습니다.";
-        } catch (Exception e) {
-            return "기숙사 배정 중 오류 발생: " + e.getMessage();
-        }
-    }
+            // 퇴사일 간격을 가져옴
+            Integer days = requestBody.get("days");
+            if (days == null) {
+                throw new IllegalArgumentException("퇴사일 옵션이 누락되었습니다.");
+            }
 
-    @PostMapping("/departure/{studentId}")
-    public String setDepartureDate(@PathVariable int studentId, @RequestBody Map<String, Integer> requestBody) {
-        Integer days = requestBody.get("days");
-        if (days == null) {
-            throw new IllegalArgumentException("퇴사일 옵션이 누락되었습니다.");
+            // 퇴사일 설정
+            dormitoryDepartureDateSetter.setDepartureDate(studentId, days);
+
+            return "학번 " + studentId + "번 학생의 기숙사 배정과 퇴사일 설정이 완료되었습니다.";
+        } catch (Exception e) {
+            return "작업 중 오류 발생: " + e.getMessage();
         }
-        // 주입된 서비스 인스턴스를 통해 메서드 호출
-        dormitoryDepartureDateSetter.setDepartureDate(studentId, days);
-        return "학번 " + studentId + "번 학생의 퇴사일이 " + days + "일로 설정되었습니다.";
     }
 }
