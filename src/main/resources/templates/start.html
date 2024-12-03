@@ -110,8 +110,8 @@
                     <td th:text="${dormitory.roomNumber}"></td>
                     <td th:text="${dormitory.assignedPeople}"></td>
                     <td>
-                        <span th:each="student, iterStat : ${studentsByRoom[dormitory.roomNumber]}"
-                              th:text="${student.studentId} + (iterStat.last ? '' : ', ')"></span>
+        <span th:each="student, iterStat : ${studentsByRoom[dormitory.roomNumber]}"
+              th:text="${iterStat.last ? student.studentId : student.studentId + ', '}"></span>
                     </td>
                 </tr>
                 </tbody>

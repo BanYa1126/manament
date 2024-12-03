@@ -1,9 +1,9 @@
 package dormitory_student_management.management.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.*;
+
+import java.util.List;
 
 @Entity
 @Table(name="기숙사")
@@ -15,6 +15,19 @@ public class Dormitory {
     @Column(name="배정인원")
     private Integer assignedPeople;
 
+    // 룸메이트 필드 추가
+    @Transient // 데이터베이스에 저장되지 않음
+    @JsonIgnoreProperties({"dormitory"})
+    private List<Student> roommates;
+
+    // Getter 및 Setter
+    public List<Student> getRoommates() {
+        return roommates;
+    }
+
+    public void setRoommates(List<Student> roommates) {
+        this.roommates = roommates;
+    }
     // 기본 생성자
     public Dormitory() {
     }

@@ -1,28 +1,20 @@
 package dormitory_student_management.management.service;
 
+import dormitory_student_management.management.repository.PointRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.CallableStatementCallback;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
 public class PointService {
 
-    private final JdbcTemplate jdbcTemplate;
+    private final PointRepository pointRepository;
 
     @Autowired
-    public PointService(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
+    public PointService(PointRepository pointRepository) {
+        this.pointRepository = pointRepository;
     }
 
     public void recordPoints(int studentId, int points) {
-        String procedureCall = "{CALL 상벌점_기록_프로시져(?, ?)}";
-
-        jdbcTemplate.execute(procedureCall, (CallableStatementCallback<Void>) callableStatement -> {
-            callableStatement.setInt(1, studentId); // 첫 번째 매개변수: 학번
-            callableStatement.setInt(2, points);    // 두 번째 매개변수: 점수 (+ 또는 -)
-            callableStatement.execute();
-            return null;
-        });
+        pointRepository.recordPoints(studentId, points);
     }
 }

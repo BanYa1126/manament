@@ -1,7 +1,7 @@
 package dormitory_student_management.management.service;
 
 import dormitory_student_management.management.domain.Dormitory;
-import dormitory_student_management.management.repository.Dormitory.DormitoryRepository;
+import dormitory_student_management.management.repository.DormitoryRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 

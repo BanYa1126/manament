@@ -3,91 +3,194 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>정보 확인</title>
+    <title>학생 정보 조회</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            padding: 20px;
+            text-align: center;
+            margin: 0;
+            padding: 0;
         }
-        label {
-            margin: 10px 0;
-            display: block;
+        .form-container {
+            margin: 30px auto;
+            max-width: 500px;
+            text-align: left;
         }
-        input, button {
-            padding: 8px;
-            margin: 5px 0;
+        .form-container .radio-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .form-container .radio-group input[type="radio"] {
+            margin-right: 10px;
+        }
+        .form-container label {
+            font-weight: bold;
+            margin: 0;
+            cursor: pointer;
+        }
+        .form-container input[type="number"],
+        .form-container input[type="text"] {
             width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
             font-size: 16px;
+            box-sizing: border-box;
         }
-        button {
+        .form-container button {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
             background-color: #007BFF;
             color: white;
             border: none;
             cursor: pointer;
         }
-        button:hover {
+        .form-container button:hover {
             background-color: #0056b3;
         }
-        .form-container {
-            max-width: 600px;
-            margin: auto;
+        .table-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            overflow-x: auto;
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            table-layout: fixed;
         }
         th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
+            padding: 10px;
+            text-align: center;
+            word-wrap: break-word;
         }
         th {
             background-color: #f2f2f2;
+        }
+        .error {
+            color: red;
+            margin-top: 10px;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
 
-    <h1>정보 확인</h1>
+<h1>학생 정보 조회</h1>
 
-    <div class="form-container">
-        <form onsubmit="return searchStudent()">
-            <label for="searchId">학생 ID:</label>
-            <input type="text" id="searchId" name="searchId" placeholder="학생 ID 입력" required>
+<div class="form-container">
+    <form id="searchForm" onsubmit="return searchStudent(event)">
+        <div class="radio-group">
+            <input type="radio" id="searchById" name="searchType" value="id" checked>
+            <label for="searchById">학번으로 조회</label>
+        </div>
+        <input type="number" id="studentId" placeholder="학번 입력">
 
-            <button type="submit">검색</button>
-        </form>
+        <div class="radio-group">
+            <input type="radio" id="searchByAddress" name="searchType" value="address">
+            <label for="searchByAddress">지역으로 조회</label>
+        </div>
+        <input type="text" id="address" placeholder="주소 입력">
 
-        <table id="studentInfo" style="display: none;">
-            <thead>
-                <tr>
-                    <th>이름</th>
-                    <th>호실</th>
-                    <th>전화번호</th>
-                    <th>입사일</th>
-                    <th>퇴사일</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td id="name">홍길동</td>
-                    <td id="room">101호</td>
-                    <td id="phone">010-1234-5678</td>
-                    <td id="checkIn">2024-01-01</td>
-                    <td id="checkOut">2024-12-31</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+        <button type="submit">조회</button>
+    </form>
 
-    <script>
-        function searchStudent() {
-            const studentTable = document.getElementById('studentInfo');
-            studentTable.style.display = 'table';
-            return false; 
+    <!-- 오류 메시지 -->
+    <div id="error" class="error" style="display: none;"></div>
+</div>
+
+<div class="table-container" style="display: none;" id="resultContainer">
+    <table>
+        <thead>
+        <tr>
+            <th>학번</th>
+            <th>이름</th>
+            <th>주소</th>
+            <th>호실</th>
+            <th>전화번호</th>
+            <th>입사일</th>
+            <th>퇴사일</th>
+            <th>외박횟수</th>
+            <th>출입여부</th>
+            <th>룸메이트 학번</th>
+        </tr>
+        </thead>
+        <tbody id="resultBody">
+        </tbody>
+    </table>
+</div>
+
+<script>
+    async function searchStudent(event) {
+        event.preventDefault(); // 폼 기본 동작 방지
+        const searchType = document.querySelector('input[name="searchType"]:checked').value;
+        const studentId = document.getElementById('studentId').value;
+        const address = document.getElementById('address').value;
+        const errorDiv = document.getElementById('error');
+        const resultContainer = document.getElementById('resultContainer');
+        const resultBody = document.getElementById('resultBody');
+
+        // 초기화
+        errorDiv.style.display = 'none';
+        errorDiv.textContent = '';
+        resultContainer.style.display = 'none';
+        resultBody.innerHTML = '';
+
+        // URL 구성
+        let url = '';
+        if (searchType === 'id' && studentId) {
+            url = `/students/search/by-id?studentId=${studentId}`;
+        } else if (searchType === 'address' && address) {
+            url = `/students/search/by-address?address=${encodeURIComponent(address)}`;
+        } else {
+            errorDiv.style.display = 'block';
+            errorDiv.textContent = '검색 조건을 입력해주세요.';
+            return;
         }
-    </script>
+
+        // 서버 요청
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error('데이터를 가져오는 데 실패했습니다.');
+            }
+            const students = await response.json();
+
+            console.log("Received data:", students); // 디버깅용 로그
+
+            if (students.length === 0) {
+                errorDiv.style.display = 'block';
+                errorDiv.textContent = '조회된 데이터가 없습니다.';
+                return;
+            }
+
+            // 결과 테이블 업데이트
+            students.forEach(student => {
+                const row = document.createElement('tr');
+                const roommates = student.dormitory?.roommates?.map(rm => rm.studentId).join(', ') || 'N/A';
+
+                row.innerHTML = `
+                <td>${student.studentId || 'N/A'}</td>
+                <td>${student.name || 'N/A'}</td>
+                <td>${student.address || 'N/A'}</td>
+                <td>${student.dormitory?.roomNumber || 'N/A'}</td>
+                <td>${student.contact || 'N/A'}</td>
+                <td>${student.entryDate || 'N/A'}</td>
+                <td>${student.exitDate || 'N/A'}</td>
+                <td>${student.overnightCount || 'N/A'}</td>
+                <td>${student.accessStatus === 1 ? '출입 상태' : '외출 상태'}</td>
+                <td>${roommates}</td>
+            `;
+                resultBody.appendChild(row);
+            });
+
+            resultContainer.style.display = 'block';
+        } catch (error) {
+            errorDiv.style.display = 'block';
+            errorDiv.textContent = error.message;
+        }
+    }
+</script>
 
 </body>
 </html>

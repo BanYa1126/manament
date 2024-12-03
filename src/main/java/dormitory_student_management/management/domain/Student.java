@@ -1,5 +1,6 @@
 package dormitory_student_management.management.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 
@@ -10,22 +11,31 @@ public class Student {
     @Id
     @Column(name="학번")
     private Integer studentId;
+
     @Column(name="이름")
     private String name;
+
     @Column(name="주소")
     private String address;
+
     @Column(name="연락처")
     private String contact;
+
     @Column(name="입사일")
     private LocalDate entryDate;
+
     @Column(name="퇴사일")
     private LocalDate exitDate;
+
     @Column(name="출입여부")
     private Boolean accessStatus;
+
     @Column(name="외박횟수")
     private Integer overnightCount;
+
     @ManyToOne
     @JoinColumn(name="방번호")
+    @JsonIgnoreProperties({"students"})
     private Dormitory dormitory;
 
     public Integer getStudentId() {

@@ -59,7 +59,7 @@
     document.getElementById('admissionForm').addEventListener('submit', function(event) {
         event.preventDefault();
 
-        const studentId = document.getElementById('studentID').value;
+        const studentId = parseInt(document.getElementById('studentID').value, 10);
         const departureOption = document.querySelector('input[name="departureOption"]:checked');
 
         if (!departureOption) {
@@ -69,7 +69,7 @@
 
         const days = departureOption.value;
 
-        fetch(`/dormitory/assign/${studentId}`, {
+        fetch(`/student-dormitory/assign/${studentId}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
