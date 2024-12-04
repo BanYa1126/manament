@@ -40,6 +40,19 @@
         .radio-group label {
             cursor: pointer;
         }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
     </style>
 </head>
 <body>
@@ -70,6 +83,23 @@
 
         <button type="submit">조회</button>
     </form>
+</div>
+
+<div id="result-container">
+    <table id="result-table" style="display: none;">
+        <thead>
+        <tr>
+            <th>시간</th>
+            <th>상태</th>
+            <th>외박 여부</th>
+            <th>학생 ID</th>
+            <th>학생 이름</th>
+            <th>관리자 ID</th>
+            <th>관리자 이름</th>
+        </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
 </div>
 
 <script>
@@ -107,15 +137,40 @@
             if (!response.ok) throw new Error('데이터를 불러오는 데 실패했습니다.');
 
             const data = await response.json();
-
-            alert("학생 정보를 성공적으로 가져왔습니다.");
-            console.log(data);
+            populateTable(data);
         } catch (error) {
             alert("학생 정보를 가져오는 데 실패했습니다.");
             console.error(error);
         }
 
         return false;
+    }
+
+    function populateTable(data) {
+        const table = document.getElementById('result-table');
+        const tbody = table.querySelector('tbody');
+
+        // 기존 데이터 삭제
+        tbody.innerHTML = '';
+
+        // 데이터 추가
+        data.forEach(record => {
+            const row = document.createElement('tr');
+
+            row.innerHTML = `
+                <td>${record.time}</td>
+                <td>${record.status}</td>
+                <td>${record.overnightStatus ? '외박' : '외박X'}</td>
+                <td>${record.studentId}</td>
+                <td>${record.studentName}</td>
+                <td>${record.adminId}</td>
+                <td>${record.adminName}</td>
+            `;
+
+            tbody.appendChild(row);
+        });
+
+        table.style.display = 'table';
     }
 </script>
 
