@@ -7,7 +7,7 @@
     <style>
         .table-container {
             overflow-y: auto;
-            max-height: 680px;
+            max-height: 500px;
             border: 1px solid #ddd;
         }
         body {
@@ -61,26 +61,13 @@
         th {
             background-color: #f4f4f4;
         }
-        .footer {
-            margin-top: 20px;
-            text-align: right;
-        }
-        .footer button {
-            padding: 10px 20px;
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        .footer button:hover {
-            background-color: #0056b3;
-        }
     </style>
 </head>
 <body>
 <div style="text-align: center; margin-bottom: 20px;">
-    <h1>기숙사 현황</h1>
+    <h1>기숙사 관리 시스템</h1>
     <h2 id="currentDateTime"></h2>
+    <h3>오늘의 당직자 : <span th:text="${dutyManager}">로딩 중...</span></h3> <!-- 서버에서 전달된 당직자 정보 표시 -->
 </div>
 
 <div class="container">
@@ -93,6 +80,7 @@
         <button onclick="location.href='/view-student'">학생 정보 조회</button>
         <button onclick="location.href='/view-time-record'">학생 출입 기록 조회</button>
         <button onclick="location.href='/out-Of-Student'">학생 기숙사 퇴사</button>
+        <button>관리자 변경</button>
     </div>
     <div class="content">
         <h2>기숙사 방 현황</h2>
@@ -117,9 +105,6 @@
                 </tbody>
             </table>
         </div>
-    </div>
-    <div class="footer">
-        <button>관리자 변경</button>
     </div>
 </div>
 

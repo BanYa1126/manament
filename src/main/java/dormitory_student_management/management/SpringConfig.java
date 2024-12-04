@@ -66,4 +66,14 @@ public class SpringConfig {
     public StudentDormitoryOutService studentDormitoryOutService(StudentDormitoryOutRepository studentDormitoryOutRepository) {
         return new StudentDormitoryOutService(studentDormitoryOutRepository());
     }
+
+    @Bean
+    public AdministratorViewRepository administratorViewRepository() {
+        return new AdministratorViewRepository();
+    }
+
+    @Bean
+    public AdministratorViewService administratorViewService(AdministratorViewRepository administratorViewRepository) {
+        return new AdministratorViewService(administratorViewRepository);
+    }
 }
