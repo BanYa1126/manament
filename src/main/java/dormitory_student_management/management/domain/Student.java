@@ -38,6 +38,19 @@ public class Student {
     @JsonIgnoreProperties({"students"})
     private Dormitory dormitory;
 
+    @OneToOne(mappedBy = "student", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnoreProperties({"student"})
+    private RewardPenalty rewardPenalty; // 상벌점 필드 추가
+
+    // Getters and Setters
+    public RewardPenalty getRewardPenalty() {
+        return rewardPenalty;
+    }
+
+    public void setRewardPenalty(RewardPenalty rewardPenalty) {
+        this.rewardPenalty = rewardPenalty;
+    }
+
     public Integer getStudentId() {
         return studentId;
     }

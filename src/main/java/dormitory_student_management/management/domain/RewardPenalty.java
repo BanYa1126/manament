@@ -1,6 +1,5 @@
 package dormitory_student_management.management.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity

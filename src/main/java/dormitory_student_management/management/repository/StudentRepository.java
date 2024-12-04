@@ -14,17 +14,19 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
     // 특정 방에 배정된 학생 조회
     List<Student> findByDormitoryRoomNumber(Integer roomNumber);
 
-    // 학번으로 특정 학생 정보 조회
+    // 상벌점 데이터를 포함한 학생 정보 조회
     @Query("SELECT s FROM Student s " +
             "LEFT JOIN FETCH s.dormitory d " +
+            "LEFT JOIN FETCH s.rewardPenalty rp " +  // 상벌점 연관 데이터 가져오기
             "WHERE s.studentId = :studentId AND s.entryDate IS NOT NULL")
-    List<Student> findStudentWithDetailsByStudentId(@Param("studentId") Integer studentId);
+    List<Student> findStudentWithDetailsAndRewardsByStudentId(@Param("studentId") Integer studentId);
 
-    // 주소 기반으로 특정 학생 정보 조회
+    // 주소 기반으로 상벌점 포함 조회
     @Query("SELECT DISTINCT s FROM Student s " +
             "LEFT JOIN FETCH s.dormitory d " +
+            "LEFT JOIN FETCH s.rewardPenalty rp " +  // 상벌점 연관 데이터 가져오기
             "WHERE LOWER(s.address) LIKE LOWER(CONCAT('%', :address, '%')) AND s.entryDate IS NOT NULL")
-    List<Student> findStudentsWithDetailsByAddress(@Param("address") String address);
+    List<Student> findStudentsWithDetailsAndRewardsByAddress(@Param("address") String address);
 
     // 특정 방 번호의 룸메이트 조회
     @Query("SELECT s FROM Student s WHERE s.dormitory.roomNumber = :roomNumber AND s.studentId <> :studentId")

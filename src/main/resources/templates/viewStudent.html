@@ -112,6 +112,7 @@
             <th>퇴사일</th>
             <th>외박횟수</th>
             <th>출입여부</th>
+            <th>상벌점</th>
             <th>룸메이트 학번</th>
         </tr>
         </thead>
@@ -179,6 +180,7 @@
                 <td>${student.exitDate || 'N/A'}</td>
                 <td>${student.overnightCount || 'N/A'}</td>
                 <td>${student.accessStatus === 1 ? '출입 상태' : '외출 상태'}</td>
+                <td>${student.rewardPenalty?.points !== null && student.rewardPenalty?.points !== undefined ? student.rewardPenalty.points : 'N/A'}</td>
                 <td>${roommates}</td>
             `;
                 resultBody.appendChild(row);

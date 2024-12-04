@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>정보 변경</title>
+    <title>학생 출입 기록 조회</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -32,112 +32,92 @@
             max-width: 600px;
             margin: auto;
         }
+        .radio-group {
+            display: flex;
+            margin: 10px 0;
+            gap: 20px;
+        }
+        .radio-group label {
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
 
-    <h1>정보 변경</h1>
+<h1>학생 출입 기록 조회</h1>
 
-    <div class="form-container">
-        <form onsubmit="return updateStudentInfo()">
-            <label for="studentId">학생 ID:</label>
-            <input type="text" id="studentId" name="studentId" placeholder="학생 ID 입력" onblur="fetchStudentData()" required>
+<div class="form-container">
+    <form onsubmit="return fetchStudentData()">
+        <label for="studentId">학번 입력 : </label>
+        <input type="text" id="studentId" name="studentId" placeholder="학번 입력" required>
 
-            <label for="newName">이름:</label>
-            <input type="text" id="newName" name="newName">
+        <div class="radio-group">
+            <label>
+                <input type="radio" name="timeOption" value="noTime" checked>
+                시간 조건 없이 조회
+            </label>
+            <label>
+                <input type="radio" name="timeOption" value="withTime">
+                시간 조건 포함 조회
+            </label>
+        </div>
 
-            <label for="newPhone">새 전화번호:</label>
-            <input type="text" id="newPhone" name="newPhone">
+        <label for="startTime">조회 시작 시간:</label>
+        <input type="datetime-local" id="startTime" name="startTime" disabled>
 
-            <label for="newAddress">새 주소:</label>
-            <input type="text" id="newAddress" name="newAddress">
+        <label for="endTime">조회 종료 시간:</label>
+        <input type="datetime-local" id="endTime" name="endTime" disabled>
 
-            <label for="newRoom">새 호실:</label>
-            <input type="text" id="newRoom" name="newRoom">
+        <button type="submit">조회</button>
+    </form>
+</div>
 
-            <label for="newCheckIn">입사일:</label>
-            <input type="date" id="newCheckIn" name="newCheckIn">
+<script>
+    // 라디오 버튼에 따라 시간 입력칸 활성화/비활성화
+    document.querySelectorAll('input[name="timeOption"]').forEach(radio => {
+        radio.addEventListener('change', (event) => {
+            const withTime = event.target.value === 'withTime';
+            document.getElementById('startTime').disabled = !withTime;
+            document.getElementById('endTime').disabled = !withTime;
+        });
+    });
 
-            <label for="newCheckOut">퇴실일:</label>
-            <input type="date" id="newCheckOut" name="newCheckOut">
+    async function fetchStudentData() {
+        const studentId = document.getElementById('studentId').value;
+        const timeOption = document.querySelector('input[name="timeOption"]:checked').value;
+        const startTime = document.getElementById('startTime').value;
+        const endTime = document.getElementById('endTime').value;
 
-            <label for="newLeaveCount">외박 횟수:</label>
-            <input type="number" id="newLeaveCount" name="newLeaveCount">
-
-            <button type="submit">정보 변경</button>
-        </form>
-    </div>
-
-    <script>
-        async function fetchStudentData() {
-            const studentId = document.getElementById('studentId').value;
-
-            if (!studentId) {
-                alert("학생 ID를 입력해주세요.");
-                return;
-            }
-
-            try {
-                const response = await fetch(`/getStudentInfo?id=${studentId}`);
-                if (!response.ok) throw new Error('데이터를 불러오는 데 실패했습니다.');
-
-                const data = await response.json();
-
-                document.getElementById('newName').value = data.name || "";
-                document.getElementById('newPhone').value = data.phone || "";
-                document.getElementById('newAddress').value = data.address || "";
-                document.getElementById('newRoom').value = data.room || "";
-                document.getElementById('newCheckIn').value = data.checkIn || "";
-                document.getElementById('newCheckOut').value = data.checkOut || "";
-                document.getElementById('newLeaveCount').value = data.leaveCount || "";
-            } catch (error) {
-                alert("학생 정보를 가져오는 데 실패했습니다.");
-                console.error(error);
-            }
+        if (!studentId) {
+            alert("학생 ID를 입력해주세요.");
+            return false;
         }
 
-        async function updateStudentInfo() {
-            const studentId = document.getElementById('studentId').value;
-            const newName = document.getElementById('newName').value;
-            const newPhone = document.getElementById('newPhone').value;
-            const newAddress = document.getElementById('newAddress').value;
-            const newRoom = document.getElementById('newRoom').value;
-            const newCheckIn = document.getElementById('newCheckIn').value;
-            const newCheckOut = document.getElementById('newCheckOut').value;
-            const newLeaveCount = document.getElementById('newLeaveCount').value;
-
-            if (!studentId) {
-                alert("학생 ID를 입력해주세요.");
+        let query = `/getStudentInfo?id=${studentId}`;
+        if (timeOption === 'withTime') {
+            if (!startTime || !endTime) {
+                alert("시간 조건을 입력해주세요.");
                 return false;
             }
-
-            try {
-                const response = await fetch('/updateStudentInfo', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        studentId,
-                        name: newName,
-                        phone: newPhone,
-                        address: newAddress,
-                        room: newRoom,
-                        checkIn: newCheckIn,
-                        checkOut: newCheckOut,
-                        leaveCount: newLeaveCount
-                    })
-                });
-
-                if (!response.ok) throw new Error('정보 변경에 실패했습니다.');
-
-                alert("정보가 성공적으로 변경되었습니다.");
-                return false; 
-            } catch (error) {
-                alert("정보 변경 중 오류가 발생했습니다.");
-                console.error(error);
-                return false;
-            }
+            query += `&startTime=${startTime}&endTime=${endTime}`;
         }
-    </script>
+
+        try {
+            const response = await fetch(query);
+            if (!response.ok) throw new Error('데이터를 불러오는 데 실패했습니다.');
+
+            const data = await response.json();
+
+            alert("학생 정보를 성공적으로 가져왔습니다.");
+            console.log(data);
+        } catch (error) {
+            alert("학생 정보를 가져오는 데 실패했습니다.");
+            console.error(error);
+        }
+
+        return false;
+    }
+</script>
 
 </body>
 </html>
