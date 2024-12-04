@@ -5,14 +5,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class StudentDormitoryAssignmentService {
+public class StudentDormitoryService {
     private final StudentDormitoryRepository studentDormitoryRepository;
 
-    public StudentDormitoryAssignmentService(StudentDormitoryRepository studentDormitoryRepository) {
+    public StudentDormitoryService(StudentDormitoryRepository studentDormitoryRepository) {
         this.studentDormitoryRepository = studentDormitoryRepository;
     }
 
-    public void assignDormitory(int studentId) {
+    @Transactional
+    public void setDepartureDate(int studentId, int days) {
         studentDormitoryRepository.assignDormitoryByProcedure(studentId);
+        studentDormitoryRepository.setDepartureDate(studentId, days);
     }
 }

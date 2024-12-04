@@ -53,17 +53,7 @@ public class SpringConfig {
     }
 
     @Bean
-    public StudentDormitoryRepository2 studentDormitoryRepository2() {
-        return new StudentDormitoryRepository2(jdbcTemplate());
-    }
-
-    @Bean
-    public StudentDormitoryAssignmentService studentDormitoryService() {
-        return new StudentDormitoryAssignmentService(studentDormitoryRepository());
-    }
-
-    @Bean
-    public StudentDormitoryDepartureService StudentDormitoryDepartureService() {
-        return new StudentDormitoryDepartureService(studentDormitoryRepository2());
+    public StudentDormitoryService studentDormitoryService() {
+        return new StudentDormitoryService(studentDormitoryRepository());
     }
 }
