@@ -56,4 +56,14 @@ public class SpringConfig {
     public StudentDormitoryService studentDormitoryService() {
         return new StudentDormitoryService(studentDormitoryRepository());
     }
+
+    @Bean
+    public StudentDormitoryOutRepository studentDormitoryOutRepository() {
+        return new StudentDormitoryOutRepository(jdbcTemplate());
+    }
+
+    @Bean
+    public StudentDormitoryOutService studentDormitoryOutService(StudentDormitoryOutRepository studentDormitoryOutRepository) {
+        return new StudentDormitoryOutService(studentDormitoryOutRepository());
+    }
 }

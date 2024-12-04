@@ -20,7 +20,14 @@
             box-sizing: border-box;
         }
         .radio-group {
+            display: flex; /* 한 줄로 정렬 */
+            gap: 20px; /* 버튼 간 간격 */
             margin: 10px 0;
+        }
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            gap: 5px; /* 라디오 버튼과 텍스트 간격 */
         }
         button {
             padding: 10px 20px;
@@ -42,14 +49,18 @@
 
     <label>기숙사 생활 기간</label>
     <div class="radio-group">
-        <input type="radio" id="semester" name="departureOption" value="100" required>
-        <label for="semester">학기 (100일)</label><br>
-
-        <input type="radio" id="halfYear" name="departureOption" value="180">
-        <label for="halfYear">반기 (180일)</label><br>
-
-        <input type="radio" id="year" name="departureOption" value="365">
-        <label for="year">연간 (365일)</label>
+        <label for="semester">
+            <input type="radio" id="semester" name="departureOption" value="100" required>
+            학기 (100일)
+        </label>
+        <label for="halfYear">
+            <input type="radio" id="halfYear" name="departureOption" value="180">
+            반기 (180일)
+        </label>
+        <label for="year">
+            <input type="radio" id="year" name="departureOption" value="365">
+            연간 (365일)
+        </label>
     </div>
 
     <button type="submit">기숙사 배정</button>

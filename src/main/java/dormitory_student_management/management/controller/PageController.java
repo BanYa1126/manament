@@ -11,6 +11,12 @@ public class PageController {
         return "studentAdmission"; // templates/studentAdmission.html
     }
 
+    @GetMapping("/out-Of-Student")
+    public String showOutOfStudentPage() {
+        // outOfStudent.html 반환
+        return "outOfStudent";
+    }
+
     // View Student 페이지
     @GetMapping("/view-student")
     public String showViewStudentPage() {
