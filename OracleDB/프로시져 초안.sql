@@ -55,7 +55,9 @@ BEGIN
     UPDATE 학생
     SET 방번호 = NULL,
         퇴사일 = NULL,
-        입사일 = NULL
+        입사일 = NULL,
+        출입여부= NULL,
+        외박횟수 =NULL
     WHERE 학번 = p_학번;
 
     -- 3. 기숙사 테이블의 배정인원 감소
@@ -414,7 +416,7 @@ END 외박_신청_취소_프로시져;
 create or replace NONEDITIONABLE TRIGGER 학생_기숙사_입사_트리거
 BEFORE UPDATE OF 방번호 ON 학생
 FOR EACH ROW
-WHEN (NEW.방번호 IS NOT NULL) -- 방번호가 설정될 때만 작동
+WHEN (OLD.방번호 IS NULL) -- 방번호가 설정될 때만 작동
 DECLARE
     v_기존점수 상벌점.점수%TYPE; -- 기존 점수를 저장할 변수
 BEGIN
@@ -440,7 +442,7 @@ BEGIN
                 '입사가 불가능합니다. 학번 ' || :NEW.학번 || '번 학생의 기존 상벌점은 ' || v_기존점수 || '점입니다.'
             );
         END IF;
-        
+
         -- 외박횟수와 출입여부가 NULL일 때만 값 설정
         IF :NEW.외박횟수 IS NULL THEN
             :NEW.외박횟수 := 15;
@@ -449,7 +451,7 @@ BEGIN
         IF :NEW.출입여부 IS NULL THEN
             :NEW.출입여부 := 0;
         END IF;
-        
+
 
         -- 4. 기존 점수 출력
         DBMS_OUTPUT.PUT_LINE('학번 ' || :NEW.학번 || '번 학생의 기존 상벌점은 ' || v_기존점수 || '점입니다.');
