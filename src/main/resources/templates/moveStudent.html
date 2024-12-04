@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>기숙사 랜덤 방이동</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    label {
+      display: block;
+      margin: 10px 0 5px;
+    }
+    input[type="number"], button {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 15px;
+      box-sizing: border-box;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #007BFF; /* 버튼 컬러 변경 */
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3; /* hover 시 색상 */
+    }
+  </style>
+</head>
+<body>
+<h1>기숙사 랜덤 방이동</h1>
+<form id="departureForm">
+  <label for="studentID">학생 학번</label>
+  <input type="number" id="studentID" name="studentID" placeholder="학생 학번을 입력하세요" required>
+
+  <button type="submit">랜덤 방이동</button>
+</form>
+
+<script>
+  document.getElementById('departureForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const studentId = parseInt(document.getElementById('studentID').value, 10);
+
+    fetch(`/student-dormitory/move/${studentId}`, {
+      method: 'POST',
+    })
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('기숙사 랜덤 방이동 실패');
+              }
+              return response.text();
+            })
+            .then(message => {
+              alert(message); // 성공 메시지 표시
+              window.location.href = '/start'; // start.html로 리디렉션
+            })
+            .catch(error => {
+              alert('오류: ' + error.message);
+            });
+  });
+</script>
+</body>
+</html>

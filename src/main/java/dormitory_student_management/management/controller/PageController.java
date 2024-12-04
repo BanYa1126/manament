@@ -17,6 +17,11 @@ public class PageController {
         return "outOfStudent";
     }
 
+    @GetMapping("/move-Student")
+    public String showmoveStudentPage() {
+        // outOfStudent.html 반환
+        return "moveStudent";
+    }
     // View Student 페이지
     @GetMapping("/view-student")
     public String showViewStudentPage() {
@@ -30,8 +35,8 @@ public class PageController {
     }
 
     // Info Change 페이지
-    @GetMapping("/info-change")
+    @GetMapping("/view-time-record")
     public String showInfoChangePage() {
-        return "infoChange"; // templates/infoChange.html
+        return "viewTimeRecord"; // templates/viewTimeRecord.html
     }
 }
