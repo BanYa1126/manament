@@ -73,15 +73,16 @@ EXCEPTION
 END 기숙사_퇴실_프로시져;
 /
 
-CREATE OR REPLACE PROCEDURE 기숙사_방이동_프로시져 (
+CREATE OR REPLACE NONEDITIONABLE PROCEDURE 기숙사_방이동_프로시져 (
     p_학번 IN 학생.학번%TYPE
 )
 IS
     v_방번호 기숙사.방번호%TYPE;
+    v_퇴사일 DATE;
 BEGIN
-    -- 1. 학생이 배정된 방번호 조회
-    SELECT 방번호
-    INTO v_방번호
+    -- 1. 학생이 배정된 방번호와 기존 퇴실일 조회
+    SELECT 방번호, 퇴사일
+    INTO v_방번호, v_퇴사일
     FROM 학생
     WHERE 학번 = p_학번 AND 방번호 IS NOT NULL;
 
@@ -90,17 +91,17 @@ BEGIN
     SET 방번호 = NULL
     WHERE 학번 = p_학번;
 
-    -- 3. 기숙사 테이블의 배정인원 감소
-    UPDATE 기숙사
-    SET 배정인원 = 배정인원 - 1
-    WHERE 방번호 = v_방번호;
-
-    -- 4. 결과 메시지 출력
-    DBMS_OUTPUT.PUT_LINE('학번 ' || p_학번 || '번 학생이 기숙사 ' || v_방번호 || '번 방에서 퇴실되었습니다.');
-    
-    -- 5. 방 재 배치
+    -- 3. 방 재 배치 호출
     기숙사_입사_프로시져(p_학번);
-    
+
+    -- 4. 방 재배치 후 퇴실일 업데이트
+    UPDATE 학생
+    SET 퇴사일 = v_퇴사일 -- 기존 퇴실일 복원
+    WHERE 학번 = p_학번;
+
+    -- 5. 결과 메시지 출력
+    DBMS_OUTPUT.PUT_LINE('학번 ' || p_학번 || '번 학생의 퇴사일이 ' || TO_CHAR(v_퇴사일, 'YYYY-MM-DD') || '로 복원되었습니다.');
+
 EXCEPTION
     WHEN NO_DATA_FOUND THEN
         -- 학생이 기숙사에 배정되지 않았을 때 처리
