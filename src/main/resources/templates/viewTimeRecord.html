@@ -61,7 +61,7 @@
 
 <div class="form-container">
     <form onsubmit="return fetchStudentData()">
-        <label for="studentId">학번 입력 : </label>
+        <label for="studentId">학번 입력:</label>
         <input type="text" id="studentId" name="studentId" placeholder="학번 입력" required>
 
         <div class="radio-group">
@@ -92,9 +92,9 @@
             <th>시간</th>
             <th>상태</th>
             <th>외박 여부</th>
-            <th>학생 ID</th>
+            <th>학번</th>
             <th>학생 이름</th>
-            <th>관리자 ID</th>
+            <th>관리자 번호</th>
             <th>관리자 이름</th>
         </tr>
         </thead>
@@ -103,6 +103,39 @@
 </div>
 
 <script>
+    function populateTable(data) {
+        console.log("Populating Table with Data:", data); // 응답 데이터 확인
+
+        const table = document.getElementById('result-table');
+        const tbody = table.querySelector('tbody');
+
+        // 기존 데이터 삭제
+        tbody.innerHTML = '';
+
+        if (!data || data.length === 0) {
+            console.log("No records to display."); // 빈 데이터 처리
+            alert("해당 조건의 데이터를 찾을 수 없습니다.");
+            return;
+        }
+
+        // 데이터 추가
+        data.forEach(record => {
+            console.log("Record:", record); // 각 레코드 확인
+            const row = document.createElement('tr');
+            row.innerHTML = `
+            <td>${record[0]}</td>
+            <td>${record[1]}</td>
+            <td>${record[2] ? '외박' : '외박X'}</td>
+            <td>${record[3]}</td>
+            <td>${record[4]}</td>
+            <td>${record[5]}</td>
+            <td>${record[6]}</td>
+        `;
+            tbody.appendChild(row);
+        });
+
+        table.style.display = 'table';
+    }
     // 라디오 버튼에 따라 시간 입력칸 활성화/비활성화
     document.querySelectorAll('input[name="timeOption"]').forEach(radio => {
         radio.addEventListener('change', (event) => {
@@ -112,7 +145,11 @@
         });
     });
 
-    async function fetchStudentData() {
+    async function fetchStudentData(event) {
+        if (event) {
+            event.preventDefault(); // 폼 제출 방지
+        }
+
         const studentId = document.getElementById('studentId').value;
         const timeOption = document.querySelector('input[name="timeOption"]:checked').value;
         const startTime = document.getElementById('startTime').value;
@@ -129,49 +166,32 @@
                 alert("시간 조건을 입력해주세요.");
                 return false;
             }
-            query += `&startTime=${startTime}&endTime=${endTime}`;
+            query += `&startTime=${encodeURIComponent(startTime)}&endTime=${encodeURIComponent(endTime)}`;
         }
 
+        console.log("Generated Query:", query); // 요청 URL 확인
+
         try {
-            const response = await fetch(query);
-            if (!response.ok) throw new Error('데이터를 불러오는 데 실패했습니다.');
+            const response = await fetch(query, { method: 'GET' });
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
 
             const data = await response.json();
+            if (data.length === 0) {
+                alert("해당 조건의 데이터를 찾을 수 없습니다.");
+                return false;
+            }
             populateTable(data);
         } catch (error) {
             alert("학생 정보를 가져오는 데 실패했습니다.");
-            console.error(error);
+            console.error("Fetch Error:", error);
         }
 
-        return false;
+        return false; // 폼 제출 막기
     }
-
-    function populateTable(data) {
-        const table = document.getElementById('result-table');
-        const tbody = table.querySelector('tbody');
-
-        // 기존 데이터 삭제
-        tbody.innerHTML = '';
-
-        // 데이터 추가
-        data.forEach(record => {
-            const row = document.createElement('tr');
-
-            row.innerHTML = `
-                <td>${record.time}</td>
-                <td>${record.status}</td>
-                <td>${record.overnightStatus ? '외박' : '외박X'}</td>
-                <td>${record.studentId}</td>
-                <td>${record.studentName}</td>
-                <td>${record.adminId}</td>
-                <td>${record.adminName}</td>
-            `;
-
-            tbody.appendChild(row);
-        });
-
-        table.style.display = 'table';
-    }
+    // 폼 이벤트에 fetchStudentData 연결
+    document.querySelector('form').addEventListener('submit', fetchStudentData);
 </script>
 
 </body>
