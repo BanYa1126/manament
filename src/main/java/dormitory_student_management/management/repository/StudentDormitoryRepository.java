@@ -25,7 +25,6 @@ public class StudentDormitoryRepository {
 
     // 퇴사일 설정 메서드
     public void setDepartureDate(int studentId, int days) {
-        // 퇴사일 설정 SQL 쿼리
         String updateStudentQuery = "UPDATE 학생 " +
                 "SET 퇴사일 = 입사일 + NUMTODSINTERVAL(?, 'DAY') " +
                 "WHERE 학번 = ?";
@@ -36,5 +35,17 @@ public class StudentDormitoryRepository {
         }
 
         System.out.println("학번 " + studentId + "번 학생의 퇴사일이 성공적으로 설정되었습니다.");
+    }
+
+    // 상벌점 조회 메서드
+    public int getPenaltyScore(int studentId) {
+        String query = "SELECT s.점수 FROM 학생 p " +
+                "JOIN 상벌점 s ON p.학번 = s.학번 " +
+                "WHERE p.학번 = ?";
+        try {
+            return jdbcTemplate.queryForObject(query, new Object[]{studentId}, Integer.class);
+        } catch (Exception e) {
+            throw new RuntimeException("학번 " + studentId + "번 학생의 상벌점 정보를 가져오는 중 오류 발생: " + e.getMessage(), e);
+        }
     }
 }

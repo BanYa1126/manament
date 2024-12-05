@@ -16,7 +16,6 @@ public class StudentDormitoryController {
         this.studentDormitoryService = studentDormitoryService;
     }
 
-    // 기숙사 배정 및 퇴사일 설정 API
     @PostMapping("/assign/{studentId}")
     public String assignDormitory(@PathVariable int studentId, @RequestBody Map<String, Integer> requestBody) {
         try {
@@ -27,6 +26,8 @@ public class StudentDormitoryController {
             studentDormitoryService.setDepartureDate(studentId, days);
 
             return "학번 " + studentId + "번 학생의 기숙사 배정과 퇴사일 설정이 완료되었습니다.";
+        } catch (IllegalArgumentException e) {
+            return "입사 거부 : " + e.getMessage();
         } catch (Exception e) {
             return "작업 중 오류 발생: " + e.getMessage();
         }
