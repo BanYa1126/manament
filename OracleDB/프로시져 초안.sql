@@ -56,8 +56,7 @@ BEGIN
     SET 방번호 = NULL,
         퇴사일 = NULL,
         입사일 = NULL,
-        출입여부= NULL,
-        외박횟수 =NULL
+        출입여부= NULL
     WHERE 학번 = p_학번;
 
 
