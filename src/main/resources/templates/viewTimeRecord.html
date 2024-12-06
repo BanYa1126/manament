@@ -5,47 +5,54 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>학생 출입 기록 조회</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        body
+        {
+            font-family: Arial,
+            sans-serif;
             padding: 20px;
         }
-        label {
+        label
+        {
             margin: 10px 0;
             display: block;
         }
-        input, button {
+        input, button
+        {
             padding: 8px;
             margin: 5px 0;
             width: 100%;
             font-size: 16px;
         }
-        button {
+        button
+        {
             background-color: #007BFF;
             color: white;
             border: none;
             cursor: pointer;
         }
-        button:hover {
+        button:hover
+        {
             background-color: #0056b3;
         }
-        .form-container {
+        .form-container
+        {
             max-width: 600px;
             margin: auto;
         }
-        .radio-group {
+        .radio-group
+        {
             display: flex;
             margin: 10px 0;
             gap: 20px;
         }
-        .radio-group label {
-            cursor: pointer;
-        }
-        table {
+        table
+        {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
         }
-        th, td {
+        th, td
+        {
             border: 1px solid #ccc;
             padding: 10px;
             text-align: center;
@@ -60,18 +67,18 @@
 <h1>학생 출입 기록 조회</h1>
 
 <div class="form-container">
-    <form onsubmit="return fetchStudentData()">
+    <form onsubmit="return fetchStudentData(event)">
         <label for="studentId">학번 입력:</label>
         <input type="text" id="studentId" name="studentId" placeholder="학번 입력" required>
 
         <div class="radio-group">
             <label>
                 <input type="radio" name="timeOption" value="noTime" checked>
-                시간 조건 없이 조회
+                학번 기반 조회
             </label>
             <label>
                 <input type="radio" name="timeOption" value="withTime">
-                시간 조건 포함 조회
+                시간 기반 조회
             </label>
         </div>
 
@@ -103,62 +110,13 @@
 </div>
 
 <script>
-    function populateTable(data) {
-        console.log("Populating Table with Data:", data); // 응답 데이터 확인
-
-        const table = document.getElementById('result-table');
-        const tbody = table.querySelector('tbody');
-
-        // 기존 데이터 삭제
-        tbody.innerHTML = '';
-
-        if (!data || data.length === 0) {
-            console.log("No records to display."); // 빈 데이터 처리
-            alert("해당 조건의 데이터를 찾을 수 없습니다.");
-            return;
-        }
-
-        // 데이터 추가
-        data.forEach(record => {
-            console.log("Record:", record); // 각 레코드 확인
-            const row = document.createElement('tr');
-            row.innerHTML = `
-            <td>${record[0]}</td>
-            <td>${record[1]}</td>
-            <td>${record[2] ? '외박' : '외박X'}</td>
-            <td>${record[3]}</td>
-            <td>${record[4]}</td>
-            <td>${record[5]}</td>
-            <td>${record[6]}</td>
-        `;
-            tbody.appendChild(row);
-        });
-
-        table.style.display = 'table';
-    }
-    // 라디오 버튼에 따라 시간 입력칸 활성화/비활성화
-    document.querySelectorAll('input[name="timeOption"]').forEach(radio => {
-        radio.addEventListener('change', (event) => {
-            const withTime = event.target.value === 'withTime';
-            document.getElementById('startTime').disabled = !withTime;
-            document.getElementById('endTime').disabled = !withTime;
-        });
-    });
-
-    async function fetchStudentData(event) {
-        if (event) {
-            event.preventDefault(); // 폼 제출 방지
-        }
+    function fetchStudentData(event) {
+        event.preventDefault();
 
         const studentId = document.getElementById('studentId').value;
         const timeOption = document.querySelector('input[name="timeOption"]:checked').value;
         const startTime = document.getElementById('startTime').value;
         const endTime = document.getElementById('endTime').value;
-
-        if (!studentId) {
-            alert("학생 ID를 입력해주세요.");
-            return false;
-        }
 
         let query = `/getStudentInfo?id=${studentId}`;
         if (timeOption === 'withTime') {
@@ -169,29 +127,42 @@
             query += `&startTime=${encodeURIComponent(startTime)}&endTime=${encodeURIComponent(endTime)}`;
         }
 
-        console.log("Generated Query:", query); // 요청 URL 확인
-
-        try {
-            const response = await fetch(query, { method: 'GET' });
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json();
-            if (data.length === 0) {
-                alert("해당 조건의 데이터를 찾을 수 없습니다.");
-                return false;
-            }
-            populateTable(data);
-        } catch (error) {
-            alert("학생 정보를 가져오는 데 실패했습니다.");
-            console.error("Fetch Error:", error);
-        }
-
-        return false; // 폼 제출 막기
+        fetch(query)
+            .then(response => response.json())
+            .then(data => populateTable(data))
+            .catch(error => console.error('Error:', error));
     }
-    // 폼 이벤트에 fetchStudentData 연결
-    document.querySelector('form').addEventListener('submit', fetchStudentData);
+
+    function populateTable(data) {
+        const table = document.getElementById('result-table');
+        const tbody = table.querySelector('tbody');
+        tbody.innerHTML = '';
+
+        data.forEach(record => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${record[0]}</td>
+                <td>${record[1]}</td>
+                <td>${record[2]}</td>
+                <td>${record[3]}</td>
+                <td>${record[4]}</td>
+                <td>${record[5]}</td>
+                <td>${record[6]}</td>
+            `;
+            tbody.appendChild(row);
+        });
+
+        table.style.display = 'table';
+    }
+
+    document.querySelectorAll('input[name="timeOption"]').forEach(radio => {
+        radio.addEventListener('change', event => {
+            const timeOption = event.target.value === 'withTime';
+            document.getElementById('startTime').disabled = !timeOption;
+            document.getElementById('endTime').disabled = !timeOption;
+            document.getElementById('studentId').disabled = timeOption; // 학번 입력칸 잠금
+        });
+    });
 </script>
 
 </body>

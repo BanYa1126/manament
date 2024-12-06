@@ -90,7 +90,7 @@
             <input type="radio" id="searchByAddress" name="searchType" value="address">
             <label for="searchByAddress">지역으로 조회</label>
         </div>
-        <input type="text" id="address" placeholder="주소 입력">
+        <input type="text" id="address" placeholder="주소 입력" disabled>
 
         <button type="submit">조회</button>
     </form>
@@ -122,6 +122,7 @@
 </div>
 
 <script>
+    // 폼 동작 정의
     async function searchStudent(event) {
         event.preventDefault(); // 폼 기본 동작 방지
         const searchType = document.querySelector('input[name="searchType"]:checked').value;
@@ -157,8 +158,6 @@
             }
             const students = await response.json();
 
-            console.log("Received data:", students); // 디버깅용 로그
-
             if (students.length === 0) {
                 errorDiv.style.display = 'block';
                 errorDiv.textContent = '조회된 데이터가 없습니다.';
@@ -192,6 +191,15 @@
             errorDiv.textContent = error.message;
         }
     }
+
+    // 라디오 버튼 선택 시 입력 칸 활성화/비활성화
+    document.querySelectorAll('input[name="searchType"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+            const searchById = document.getElementById('searchById').checked;
+            document.getElementById('studentId').disabled = !searchById;
+            document.getElementById('address').disabled = searchById;
+        });
+    });
 </script>
 
 </body>

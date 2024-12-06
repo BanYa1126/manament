@@ -26,7 +26,6 @@ public class AccessRecordController {
             @RequestParam(required = false) String startTime,
             @RequestParam(required = false) String endTime
     ) {
-        System.out.println("Request received - ID: " + id + ", Start Time: " + startTime + ", End Time: " + endTime);
 
         Timestamp startTimestamp = null;
         Timestamp endTimestamp = null;
@@ -47,7 +46,6 @@ public class AccessRecordController {
                 : accessRecordService.getRecordsByStudentId(id);
 
         if (records == null || records.isEmpty()) {
-            System.out.println("No data found for the given conditions.");
             return new ArrayList<>();
         }
 
