@@ -4,6 +4,8 @@ import dormitory_student_management.management.repository.StudentDormitoryReposi
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.SQLException;
+
 @Service
 public class StudentDormitoryService {
     private final StudentDormitoryRepository studentDormitoryRepository;
@@ -12,15 +14,13 @@ public class StudentDormitoryService {
         this.studentDormitoryRepository = studentDormitoryRepository;
     }
 
-    @Transactional
-    public void setDepartureDate(int studentId, int days) {
-        int penaltyScore = studentDormitoryRepository.getPenaltyScore(studentId);
-
-        if (penaltyScore <= -15) {
-            throw new IllegalArgumentException("학번 " + studentId + "번 학생은 상벌점이 -15 이하이므로 입사가 불가능합니다.");
-        }
-
+    @Transactional(rollbackFor = SQLException.class)
+    public void assignDormitory(int studentId) {
         studentDormitoryRepository.assignDormitoryByProcedure(studentId);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void updateDepartureDate(int studentId, int days) {
         studentDormitoryRepository.setDepartureDate(studentId, days);
     }
 }

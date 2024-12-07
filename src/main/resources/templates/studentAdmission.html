@@ -85,16 +85,24 @@
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ days }),
+            body: JSON.stringify({days}),
         })
-            .then(response => response.text())
+            .then(response => {
+                if (!response.ok) {
+                    // 서버 오류 처리 (예: HTTP 400, 500)
+                    return response.text().then(message => {
+                        throw new Error(message);
+                    });
+                }
+                return response.text();
+            })
             .then(message => {
                 alert(message);
-                if (!message.startsWith("입사 거부")) {
-                    window.location.href = '/start';
-                }
+                // 성공 응답 처리
+                window.location.href = '/start';
             })
             .catch(error => {
+                // 오류 처리
                 alert('오류: ' + error.message);
             });
     });
