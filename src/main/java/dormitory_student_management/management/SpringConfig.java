@@ -48,32 +48,22 @@ public class SpringConfig {
     }
 
     @Bean
-    public StudentDormitoryRepository studentDormitoryRepository() {
-        return new StudentDormitoryRepository(jdbcTemplate());
-    }
-
-    @Bean
     public StudentDormitoryService studentDormitoryService() {
         return new StudentDormitoryService(studentDormitoryRepository());
     }
 
     @Bean
-    public StudentDormitoryOutRepository studentDormitoryOutRepository() {
-        return new StudentDormitoryOutRepository(jdbcTemplate());
+    public StudentDormitoryRepository studentDormitoryRepository() {
+        return new StudentDormitoryRepository(jdbcTemplate());
     }
 
     @Bean
-    public StudentDormitoryOutService studentDormitoryOutService(StudentDormitoryOutRepository studentDormitoryOutRepository) {
-        return new StudentDormitoryOutService(studentDormitoryOutRepository());
+    public AccessRecordService accessRecordService() {
+        return new AccessRecordService(accessRecordRepository());
     }
 
     @Bean
-    public AdministratorViewRepository administratorViewRepository() {
-        return new AdministratorViewRepository();
-    }
-
-    @Bean
-    public AdministratorViewService administratorViewService(AdministratorViewRepository administratorViewRepository) {
-        return new AdministratorViewService(administratorViewRepository);
+    public AccessRecordRepository accessRecordRepository() {
+        return new JDBCAccessRecordRepository(dataSource);
     }
 }
