@@ -19,7 +19,7 @@ public class AccessRecordService {
         return accessRecordRepository.findByStudentId(studentId);
     }
 
-    public List<AccessRecord> getRecordsByStudentIdAndTimeRange(String studentId, Timestamp startTime, Timestamp endTime) {
-        return accessRecordRepository.findByStudentIdAndTimeRange(studentId, startTime, endTime);
+    public List<AccessRecord> getRecordsByStudentIdAndTimeRange(Timestamp startTime, Timestamp endTime) {
+        return accessRecordRepository.findByTimeRange(startTime, endTime);
     }
 }

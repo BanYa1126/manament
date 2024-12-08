@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface AccessRecordRepository {
     List<AccessRecord> findByStudentId(String studentId);
-    List<AccessRecord> findByStudentIdAndTimeRange(String studentId, Timestamp startTime, Timestamp endTime);
+    List<AccessRecord> findByTimeRange(Timestamp startTime, Timestamp endTime);
 }

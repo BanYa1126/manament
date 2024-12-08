@@ -42,7 +42,7 @@ public class AccessRecordController {
         }
 
         List<AccessRecord> records = (startTimestamp != null && endTimestamp != null)
-                ? accessRecordService.getRecordsByStudentIdAndTimeRange(id, startTimestamp, endTimestamp)
+                ? accessRecordService.getRecordsByStudentIdAndTimeRange(startTimestamp, endTimestamp)
                 : accessRecordService.getRecordsByStudentId(id);
 
         if (records == null || records.isEmpty()) {

@@ -5,60 +5,62 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>학생 출입 기록 조회</title>
     <style>
-        body
-        {
-            font-family: Arial,
-            sans-serif;
+        body {
+            font-family: Arial, sans-serif;
             padding: 20px;
         }
-        label
-        {
+        label {
             margin: 10px 0;
             display: block;
         }
-        input, button
-        {
+        input, button {
             padding: 8px;
             margin: 5px 0;
             width: 100%;
             font-size: 16px;
         }
-        button
-        {
+        button {
             background-color: #007BFF;
             color: white;
             border: none;
             cursor: pointer;
         }
-        button:hover
-        {
+        button:hover {
             background-color: #0056b3;
         }
-        .form-container
-        {
+        .form-container {
             max-width: 600px;
             margin: auto;
         }
-        .radio-group
-        {
+        .radio-group {
             display: flex;
             margin: 10px 0;
             gap: 20px;
         }
-        table
-        {
+        table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
         }
-        th, td
-        {
+        th, td {
             border: 1px solid #ccc;
             padding: 10px;
             text-align: center;
         }
         th {
             background-color: #f4f4f4;
+        }
+        #result-container {
+            max-height: 400px; /* 테이블 최대 높이 설정 */
+            overflow-y: auto; /* 세로 스크롤 활성화 */
+            margin-top: 20px;
+            border: 1px solid #ccc;
+        }
+        #error-message {
+            color: red;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -92,8 +94,10 @@
     </form>
 </div>
 
-<div id="result-container">
-    <table id="result-table" style="display: none;">
+<div id="error-message" style="display: none;">조회된 데이터가 없습니다.</div>
+
+<div id="result-container" style="display: none;">
+    <table id="result-table">
         <thead>
         <tr>
             <th>시간</th>
@@ -117,6 +121,13 @@
         const timeOption = document.querySelector('input[name="timeOption"]:checked').value;
         const startTime = document.getElementById('startTime').value;
         const endTime = document.getElementById('endTime').value;
+        const errorMessage = document.getElementById('error-message');
+        const resultContainer = document.getElementById('result-container');
+        const resultTable = document.getElementById('result-table');
+
+        // 초기화
+        errorMessage.style.display = 'none';
+        resultContainer.style.display = 'none';
 
         let query = `/getStudentInfo?id=${studentId}`;
         if (timeOption === 'withTime') {
@@ -129,8 +140,21 @@
 
         fetch(query)
             .then(response => response.json())
-            .then(data => populateTable(data))
-            .catch(error => console.error('Error:', error));
+            .then(data => {
+                if (data.length === 0) {
+                    // 조회된 데이터가 없을 경우
+                    errorMessage.style.display = 'block';
+                    errorMessage.textContent = '조회된 데이터가 없습니다.';
+                } else {
+                    // 데이터가 있을 경우 테이블에 표시
+                    populateTable(data);
+                }
+            })
+            .catch(error => {
+                errorMessage.style.display = 'block';
+                errorMessage.textContent = '오류가 발생했습니다. 다시 시도해주세요.';
+                console.error('Error:', error);
+            });
     }
 
     function populateTable(data) {
@@ -139,11 +163,13 @@
         tbody.innerHTML = '';
 
         data.forEach(record => {
+            const overnightStatus = record[2] === true ? '외박' : '외박X'; // 외박 여부 변환
+
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td>${record[0]}</td>
                 <td>${record[1]}</td>
-                <td>${record[2]}</td>
+                <td>${overnightStatus}</td>
                 <td>${record[3]}</td>
                 <td>${record[4]}</td>
                 <td>${record[5]}</td>
@@ -152,7 +178,7 @@
             tbody.appendChild(row);
         });
 
-        table.style.display = 'table';
+        document.getElementById('result-container').style.display = 'block';
     }
 
     document.querySelectorAll('input[name="timeOption"]').forEach(radio => {
