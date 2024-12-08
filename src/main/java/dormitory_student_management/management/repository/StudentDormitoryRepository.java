@@ -3,6 +3,8 @@ package dormitory_student_management.management.repository;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.sql.CallableStatement;
+import java.sql.Connection;
 import java.sql.SQLException;
 
 @Repository
@@ -13,42 +15,53 @@ public class StudentDormitoryRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public void assignDormitoryByProcedure(int studentId) {
+    public String assignDormitoryByProcedure(int studentId) {
         String procedureCall = "{CALL 기숙사_입사_프로시져(?)}";
-        try {
-            jdbcTemplate.update(procedureCall, studentId);
-        } catch (Exception e) {
-            Throwable cause = e.getCause();
-            if (cause instanceof SQLException) {
-                SQLException sqlException = (SQLException) cause;
+        String lastMessage = null;
 
-                // SQL 오류 캡처
-                throw new RuntimeException("트리거 오류 발생: SQL 코드=" + sqlException.getErrorCode() +
-                        ", 메시지=" + sqlException.getMessage(), sqlException);
+        try (Connection connection = jdbcTemplate.getDataSource().getConnection();
+             CallableStatement enableDbmsOutput = connection.prepareCall("BEGIN DBMS_OUTPUT.ENABLE(1000000); END;");
+             CallableStatement callProcedure = connection.prepareCall(procedureCall);
+             CallableStatement readDbmsOutput = connection.prepareCall(
+                     "DECLARE " +
+                             "    line VARCHAR2(4000); " +
+                             "    status INTEGER; " +
+                             "BEGIN " +
+                             "    LOOP " +
+                             "        DBMS_OUTPUT.GET_LINE(line, status); " +
+                             "        EXIT WHEN status != 0; " +
+                             "        ? := line; " +
+                             "    END LOOP; " +
+                             "END;"
+             )) {
+
+            // DBMS_OUTPUT 활성화
+            enableDbmsOutput.execute();
+
+            // 프로시저 호출
+            callProcedure.setInt(1, studentId);
+            callProcedure.execute();
+
+            // DBMS_OUTPUT 읽기
+            readDbmsOutput.registerOutParameter(1, java.sql.Types.VARCHAR);
+            while (true) {
+                readDbmsOutput.execute();
+                String line = readDbmsOutput.getString(1);
+                if (line == null) break;
+                lastMessage = line; // 마지막 메시지만 저장
             }
-            throw new RuntimeException("기숙사 배정 프로시저 호출 중 알 수 없는 오류 발생: " + e.getMessage(), e);
+
+        } catch (Exception e) {
+            throw new RuntimeException("기숙사 배정 프로시저 실행 중 오류 발생: " + e.getMessage(), e);
         }
+
+        return lastMessage != null ? lastMessage : "출력된 메시지가 없습니다.";
     }
 
     public void setDepartureDate(int studentId, int days) {
         String updateQuery = "UPDATE 학생 " +
                 "SET 퇴사일 = 입사일 + NUMTODSINTERVAL(?, 'DAY') " +
                 "WHERE 학번 = ?";
-        try {
-            int rowsAffected = jdbcTemplate.update(updateQuery, days, studentId);
-            if (rowsAffected == 0) {
-                throw new RuntimeException("학번 " + studentId + "번 학생을 찾을 수 없습니다.");
-            }
-        } catch (Exception e) {
-            Throwable cause = e.getCause();
-            if (cause instanceof SQLException) {
-                SQLException sqlException = (SQLException) cause;
-
-                // SQL 오류 캡처
-                throw new RuntimeException("SQL 오류 발생: 코드=" + sqlException.getErrorCode() +
-                        ", 메시지=" + sqlException.getMessage(), sqlException);
-            }
-            throw new RuntimeException("퇴사일 설정 중 알 수 없는 오류 발생: " + e.getMessage(), e);
-        }
+        jdbcTemplate.update(updateQuery, days, studentId);
     }
 }

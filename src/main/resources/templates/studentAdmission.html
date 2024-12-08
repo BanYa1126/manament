@@ -39,6 +39,16 @@
         button:hover {
             background-color: #0056b3;
         }
+        #resultMessage {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        .error {
+            color: red;
+        }
+        .success {
+            color: green;
+        }
     </style>
 </head>
 <body>
@@ -66,6 +76,8 @@
     <button type="submit">기숙사 배정</button>
 </form>
 
+<div id="resultMessage"></div>
+
 <script>
     document.getElementById('admissionForm').addEventListener('submit', function(event) {
         event.preventDefault();
@@ -73,8 +85,11 @@
         const studentId = parseInt(document.getElementById('studentID').value, 10);
         const departureOption = document.querySelector('input[name="departureOption"]:checked');
 
+        // Validate user input
         if (!departureOption) {
-            alert('기숙사 생활 기간 옵션을 선택하세요.');
+            const resultDiv = document.getElementById('resultMessage');
+            resultDiv.textContent = '기숙사 생활 기간 옵션을 선택하세요.';
+            resultDiv.className = 'error';
             return;
         }
 
@@ -85,25 +100,21 @@
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({days}),
+            body: JSON.stringify({ days }),
         })
-            .then(response => {
+            .then(response => response.text().then(message => {
                 if (!response.ok) {
-                    // 서버 오류 처리 (예: HTTP 400, 500)
-                    return response.text().then(message => {
-                        throw new Error(message);
-                    });
+                    throw new Error(message);
                 }
-                return response.text();
-            })
+                return message;
+            }))
             .then(message => {
-                alert(message);
-                // 성공 응답 처리
-                window.location.href = '/start';
+                alert(message); // 성공 메시지를 alert로 표시
+                window.location.href = '/start'; // Start.html로 즉시 이동
             })
             .catch(error => {
-                // 오류 처리
-                alert('오류: ' + error.message);
+                alert('오류: ' + error.message); // 오류 메시지 alert로 표시
+                location.reload(); // 현재 페이지를 다시 로드하여 입력 화면으로 복귀
             });
     });
 </script>

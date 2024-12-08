@@ -14,9 +14,9 @@ public class StudentDormitoryService {
         this.studentDormitoryRepository = studentDormitoryRepository;
     }
 
-    @Transactional(rollbackFor = SQLException.class)
-    public void assignDormitory(int studentId) {
-        studentDormitoryRepository.assignDormitoryByProcedure(studentId);
+    @Transactional(rollbackFor = Exception.class)
+    public String assignDormitory(int studentId) {
+        return studentDormitoryRepository.assignDormitoryByProcedure(studentId);
     }
 
     @Transactional(rollbackFor = Exception.class)
