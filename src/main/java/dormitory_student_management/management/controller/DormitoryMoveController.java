@@ -18,8 +18,7 @@ public class DormitoryMoveController {
     @PostMapping("/move/{studentId}")
     public String moveDormitory(@PathVariable int studentId) {
         try {
-            dormitoryMoveService.processDormitoryMove(studentId); // 서비스 호출
-            return "학번 " + studentId + "번 학생의 기숙사 방 이동이 완료되었습니다.";
+            return dormitoryMoveService.processDormitoryMove(studentId); // 메시지 반환
         } catch (Exception e) {
             return "기숙사 방 이동 처리 중 오류 발생: " + e.getMessage();
         }

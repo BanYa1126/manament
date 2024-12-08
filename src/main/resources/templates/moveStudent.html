@@ -21,13 +21,13 @@
     }
     button {
       padding: 10px 20px;
-      background-color: #007BFF; /* 버튼 컬러 변경 */
+      background-color: #007BFF;
       color: white;
       border: none;
       cursor: pointer;
     }
     button:hover {
-      background-color: #0056b3; /* hover 시 색상 */
+      background-color: #0056b3;
     }
   </style>
 </head>
@@ -56,11 +56,11 @@
               return response.text();
             })
             .then(message => {
-              alert(message); // 성공 메시지 표시
-              window.location.href = '/start'; // start.html로 리디렉션
+              alert(message); // DBMS_OUTPUT 메시지 표시
+              window.location.href = '/start'; // 성공 시 /start로 리디렉션
             })
             .catch(error => {
-              alert('오류: ' + error.message);
+              alert('오류: ' + error.message); // 오류 메시지 표시
             });
   });
 </script>

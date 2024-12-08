@@ -56,11 +56,11 @@
                 return response.text();
             })
             .then(message => {
-                alert(message); // 성공 메시지 표시
-                window.location.href = '/start'; // start.html로 리디렉션
+                alert(message); // 메시지를 alert로 표시
+                window.location.href = '/start'; // 성공 시 /start로 즉시 리디렉션
             })
             .catch(error => {
-                alert('오류: ' + error.message);
+                alert('오류: ' + error.message); // 오류 메시지를 alert로 표시
             });
     });
 </script>

@@ -13,7 +13,7 @@ public class StudentDormitoryOutService {
     }
 
     @Transactional
-    public void processDeparture(int studentId) {
-        studentDormitoryOutRepository.callDepartureProcedure(studentId);
+    public String processDeparture(int studentId) {
+        return studentDormitoryOutRepository.callDepartureProcedure(studentId);
     }
 }

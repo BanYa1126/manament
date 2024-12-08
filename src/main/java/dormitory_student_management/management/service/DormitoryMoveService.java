@@ -14,8 +14,7 @@ public class DormitoryMoveService {
     }
 
     @Transactional
-    public void processDormitoryMove(int studentId) throws Exception {
-        // 트랜잭션 내에서 프로시저 호출
-        dormitoryMoveRepository.callDormitoryMoveProcedure(studentId);
+    public String processDormitoryMove(int studentId) throws Exception {
+        return dormitoryMoveRepository.callDormitoryMoveProcedure(studentId);
     }
 }

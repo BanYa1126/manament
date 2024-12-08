@@ -25,15 +25,14 @@ BEGIN
     WHERE 학번 = p_학번;
 
     -- 5. 결과 메시지 출력
-    DBMS_OUTPUT.PUT_LINE('학번 ' || p_학번 || '번 학생의 퇴사일이 ' || TO_CHAR(v_퇴사일, 'YYYY-MM-DD') || '로 복원되었습니다.');
+    DBMS_OUTPUT.PUT_LINE('학번 ' || p_학번 || '번 학생의 방이동이 완료되었습니다.');
 
 EXCEPTION
     WHEN NO_DATA_FOUND THEN
         -- 학생이 기숙사에 배정되지 않았을 때 처리
         DBMS_OUTPUT.PUT_LINE('학번 ' || p_학번 || '번 학생은 기숙사에 배정되지 않았습니다.');
     WHEN OTHERS THEN
-        -- 기타 예외 처리
-        DBMS_OUTPUT.PUT_LINE('오류 발생: ' || SQLERRM);
+        RAISE;
 END 기숙사_방이동_프로시져;
 /
 
@@ -92,8 +91,7 @@ BEGIN
 
 EXCEPTION
     WHEN OTHERS THEN
-        -- 기타 예외 처리
-        DBMS_OUTPUT.PUT_LINE('오류 발생: ' || SQLERRM);
+        RAISE;
 END 기숙사_입사_프로시져;
 /
 
@@ -125,8 +123,7 @@ EXCEPTION
         -- 학생이 기숙사에 배정되지 않았을 때 처리
         DBMS_OUTPUT.PUT_LINE('학번 ' || p_학번 || '번 학생은 기숙사에 배정되지 않았습니다.');
     WHEN OTHERS THEN
-        -- 기타 예외 처리
-        DBMS_OUTPUT.PUT_LINE('오류 발생: ' || SQLERRM);
+        RAISE;
 END 기숙사_퇴실_프로시져;
 /
 
@@ -175,38 +172,53 @@ END 당직_로테이션_프로시져;
 /
 
 create or replace NONEDITIONABLE PROCEDURE 상벌점_기록_프로시져 (
-    p_학번 IN 상벌점.학번%TYPE,
+    p_방번호 IN 학생.방번호%TYPE,
     p_점수 IN 상벌점.점수%TYPE DEFAULT 0 -- 기본값 0으로 설정
 )
 IS
+    v_학번 학생.학번%TYPE;
     v_존재여부 NUMBER;
 BEGIN
-    -- 1. 학번이 상벌점 테이블에 존재하는지 확인
+    -- 1. 방번호가 학생 테이블에 존재하는지 확인하고 학번 조회
+    BEGIN
+        SELECT 학번
+        INTO v_학번
+        FROM 학생
+        WHERE 방번호 = p_방번호;
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            -- 방번호가 학생 테이블에 없으면 오류 발생
+            DBMS_OUTPUT.PUT_LINE('학생 ' || v_학번 || '번은 기숙사생이 아닙니다.');
+            RAISE_APPLICATION_ERROR(-20990, '이 학생은 기숙사생이 아닙니다.');
+    END;
+
+    -- 2. 상벌점 테이블에 학번이 존재하는지 확인
     SELECT COUNT(*)
     INTO v_존재여부
     FROM 상벌점
-    WHERE 학번 = p_학번;
+    WHERE 학번 = v_학번;
 
-    -- 2. 학번이 존재하면 점수 업데이트
+    -- 3. 조건에 따라 상벌점 추가 또는 업데이트
     IF v_존재여부 > 0 THEN
+        -- 상벌점 테이블에 학번이 존재하면 점수 업데이트
         UPDATE 상벌점
         SET 점수 = 점수 + p_점수
-        WHERE 학번 = p_학번;
+        WHERE 학번 = v_학번;
 
         -- 결과 메시지 출력
-        DBMS_OUTPUT.PUT_LINE('학번 ' || p_학번 || '번 학생의 상벌점이 ' || p_점수 || '점 추가되었습니다.');
+        DBMS_OUTPUT.PUT_LINE('학번 ' || v_학번 || '번 학생의 상벌점이 ' || p_점수 || '점 추가되었습니다.');
     ELSE
-        -- 3. 학번이 없으면 새 레코드 삽입 (기본 점수 0으로 입력)
+        -- 상벌점 테이블에 학번이 없으면 새 레코드 삽입
         INSERT INTO 상벌점 (학번, 점수)
-        VALUES (p_학번, p_점수);
+        VALUES (v_학번, p_점수);
 
         -- 결과 메시지 출력
-        DBMS_OUTPUT.PUT_LINE('학번 ' || p_학번 || '번 학생의 상벌점이 새로 추가되었습니다. 기본 점수: ' || p_점수);
+        DBMS_OUTPUT.PUT_LINE('학번 ' || v_학번 || '번 학생의 상벌점이 새로 추가되었습니다. 점수: ' || p_점수);
     END IF;
+
 EXCEPTION
     WHEN OTHERS THEN
-        -- 예외 처리
-        DBMS_OUTPUT.PUT_LINE('오류 발생: ' || SQLERRM);
+        RAISE;
 END 상벌점_기록_프로시져;
 /
 
@@ -410,7 +422,6 @@ EXCEPTION
 END 출입_기록_프로시져;
 /
 
---트리거
 create or replace NONEDITIONABLE TRIGGER 상벌점_자동퇴출_트리거
 AFTER INSERT OR UPDATE OF 점수 ON 상벌점
 FOR EACH ROW
@@ -501,7 +512,7 @@ BEGIN
 
     -- 성공 메시지 출력
     DBMS_OUTPUT.PUT_LINE('학번 ' || :NEW.학번 || '번 학생이 기숙사에서 퇴실되어 출입여부가 초기화되었습니다.');
-    DBMS_OUTPUT.PUT_LINE('방번호 ' || v_방번호 || '의 배정인원이 감소되었습니다.');
+    DBMS_OUTPUT.PUT_LINE('방번호 ' || v_방번호 || '에서 학번' ||':NEW.학번|| 학생이 퇴실하였습니다.');
 EXCEPTION
     WHEN OTHERS THEN
         -- 예외 처리 및 오류 메시지 출력
@@ -509,6 +520,7 @@ EXCEPTION
         RAISE; -- 오류를 다시 발생시켜 실행 중단
 END;
 /
+
 
 --스케줄러
 BEGIN

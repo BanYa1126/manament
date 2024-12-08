@@ -14,7 +14,7 @@ public class PointService {
         this.pointRepository = pointRepository;
     }
 
-    public void recordPoints(int studentId, int points) {
-        pointRepository.recordPoints(studentId, points);
+    public String recordPoints(int studentId, int points) {
+        return pointRepository.recordPoints(studentId, points);
     }
 }
