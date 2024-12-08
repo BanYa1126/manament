@@ -171,53 +171,55 @@ BEGIN
 END 당직_로테이션_프로시져;
 /
 
-create or replace NONEDITIONABLE PROCEDURE 상벌점_기록_프로시져 (
-    p_방번호 IN 학생.방번호%TYPE,
+CREATE OR REPLACE NONEDITIONABLE PROCEDURE 상벌점_기록_프로시져 (
+    p_학번 IN 학생.학번%TYPE,
     p_점수 IN 상벌점.점수%TYPE DEFAULT 0 -- 기본값 0으로 설정
 )
 IS
-    v_학번 학생.학번%TYPE;
+    v_방번호 학생.방번호%TYPE;
     v_존재여부 NUMBER;
 BEGIN
-    -- 1. 방번호가 학생 테이블에 존재하는지 확인하고 학번 조회
+    -- 1. 학번을 기준으로 학생 테이블에서 방번호 조회
     BEGIN
-        SELECT 학번
-        INTO v_학번
+        SELECT 방번호
+        INTO v_방번호
         FROM 학생
-        WHERE 방번호 = p_방번호;
-    EXCEPTION
-        WHEN NO_DATA_FOUND THEN
-            -- 방번호가 학생 테이블에 없으면 오류 발생
-            DBMS_OUTPUT.PUT_LINE('학생 ' || v_학번 || '번은 기숙사생이 아닙니다.');
-            RAISE_APPLICATION_ERROR(-20990, '이 학생은 기숙사생이 아닙니다.');
+        WHERE 학번 = p_학번;
+
+        -- 방번호가 NULL인 경우 오류 발생
+        IF v_방번호 IS NULL THEN
+            DBMS_OUTPUT.PUT_LINE('오류: 학번 ' || p_학번 || '번 학생은 방번호가 없습니다.');
+            RAISE_APPLICATION_ERROR(-20990, '해당 학번의 학생은 기숙사 생이 아닙니다.');
+        END IF;
     END;
 
     -- 2. 상벌점 테이블에 학번이 존재하는지 확인
     SELECT COUNT(*)
     INTO v_존재여부
     FROM 상벌점
-    WHERE 학번 = v_학번;
+    WHERE 학번 = p_학번;
 
     -- 3. 조건에 따라 상벌점 추가 또는 업데이트
     IF v_존재여부 > 0 THEN
         -- 상벌점 테이블에 학번이 존재하면 점수 업데이트
         UPDATE 상벌점
         SET 점수 = 점수 + p_점수
-        WHERE 학번 = v_학번;
+        WHERE 학번 = p_학번;
 
         -- 결과 메시지 출력
-        DBMS_OUTPUT.PUT_LINE('학번 ' || v_학번 || '번 학생의 상벌점이 ' || p_점수 || '점 추가되었습니다.');
+        DBMS_OUTPUT.PUT_LINE('학번 ' || p_학번 || '번 학생의 상벌점이 ' || p_점수 || '점 추가되었습니다.');
     ELSE
         -- 상벌점 테이블에 학번이 없으면 새 레코드 삽입
         INSERT INTO 상벌점 (학번, 점수)
-        VALUES (v_학번, p_점수);
+        VALUES (p_학번, p_점수);
 
         -- 결과 메시지 출력
-        DBMS_OUTPUT.PUT_LINE('학번 ' || v_학번 || '번 학생의 상벌점이 새로 추가되었습니다. 점수: ' || p_점수);
+        DBMS_OUTPUT.PUT_LINE('학번 ' || p_학번 || '번 학생의 상벌점이 새로 추가되었습니다. 점수: ' || p_점수);
     END IF;
 
 EXCEPTION
     WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('예기치 못한 오류 발생: ' || SQLERRM);
         RAISE;
 END 상벌점_기록_프로시져;
 /
